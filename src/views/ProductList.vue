@@ -65,6 +65,7 @@ function resetFilters() {
           <h1 class="fw-bold mb-1">Shop <span style="color:var(--brand)">All Products</span></h1>
           <p class="text-muted-custom mb-0">{{ filtered.length }} products found</p>
         </div>
+        <label for="sort-select" class="visually-hidden">Sort products by</label>
         <select id="sort-select" v-model="sortBy" class="form-select" style="width:auto;">
           <option value="default">Sort: Default</option>
           <option value="price-asc">Price: Low → High</option>

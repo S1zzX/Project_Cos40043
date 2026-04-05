@@ -12,6 +12,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Profile from '../views/Profile.vue'
+import NotFound from '../views/NotFound.vue'
 
 const routes = [
   { path: '/', component: Home, name: 'Home' },
@@ -19,12 +20,13 @@ const routes = [
   { path: '/about', component: About, name: 'About' },
   { path: '/products', component: ProductList, name: 'Products' },
   { path: '/products/:id', component: ProductDetail, name: 'ProductDetail' },
-  { path: '/cart', component: Cart, name: 'Cart', meta: { requiresAuth: true } },
-  { path: '/wishlist', component: Wishlist, name: 'Wishlist', meta: { requiresAuth: true } },
+  { path: '/cart', component: Cart, name: 'Cart', meta: { requiresAuth: true, restrictAdmin: true } },
+  { path: '/wishlist', component: Wishlist, name: 'Wishlist', meta: { requiresAuth: true, restrictAdmin: true } },
   { path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } },
   { path: '/login', component: Login, name: 'Login', meta: { guestOnly: true } },
   { path: '/register', component: Register, name: 'Register', meta: { guestOnly: true } },
   { path: '/dashboard', component: Dashboard, name: 'Dashboard', meta: { requiresAdmin: true } },
+  { path: '/:pathMatch(.*)*', component: NotFound, name: 'NotFound' }
 ]
 
 const router = createRouter({
@@ -41,6 +43,8 @@ router.beforeEach((to, from, next) => {
     next('/login')
   } else if (to.meta.requiresAuth && !auth.isLoggedIn) {
     next('/login')
+  } else if (to.meta.restrictAdmin && auth.isAdmin) {
+    next('/dashboard')
   } else if (to.meta.guestOnly && auth.isLoggedIn) {
     next('/profile')
   } else {

@@ -25,7 +25,7 @@ const cart = useCartStore()
 
       <div v-else>
         <div class="d-flex justify-content-end mb-3">
-          <button class="btn btn-sm btn-outline-danger" @click="wishlist.items = []">
+          <button class="btn btn-sm btn-outline-danger" @click="wishlist.clearWishlist()">
             <i class="bi bi-trash me-1"></i>Clear All
           </button>
         </div>

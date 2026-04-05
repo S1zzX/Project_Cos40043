@@ -24,5 +24,9 @@ export const useWishlistStore = defineStore('wishlist', () => {
     items.value = items.value.filter(i => i.id !== productId)
   }
 
-  return { items, isInWishlist, toggleWishlist, removeFromWishlist }
+  function clearWishlist() {
+    items.value = []
+  }
+
+  return { items, isInWishlist, toggleWishlist, removeFromWishlist, clearWishlist }
 })
