@@ -1,14 +1,10 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.js'
 import { useProductsStore } from '../stores/products.js'
 
 const auth = useAuthStore()
 const productStore = useProductsStore()
-const router = useRouter()
-
-if (!auth.isAdmin) router.push('/')
 
 const customProducts = ref([])
 const showForm = ref(false)

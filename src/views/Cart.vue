@@ -1,20 +1,15 @@
 <script setup>
 import { computed, onMounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
 import { useAuthStore } from '../stores/auth.js'
 
 const cart = useCartStore()
 const auth = useAuthStore()
-const router = useRouter()
 
 onMounted(() => {
   document.title = 'Shopping Cart | S1zz'
 })
-
-if (auth.isAdmin) {
-  router.push('/dashboard')
-}
 
 function checkout() {
   if (cart.items.length === 0) return
