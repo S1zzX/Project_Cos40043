@@ -7,10 +7,10 @@ function stars(r) { return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.r
   <div class="review-card p-3">
     <div class="d-flex align-items-center gap-2 mb-2">
       <div class="avatar-circle" style="width:38px;height:38px;font-size:0.85rem;border-radius:50%;">
-        {{ review.userName?.[0]?.toUpperCase() || 'U' }}
+        {{ review.username?.[0]?.toUpperCase() || 'U' }}
       </div>
       <div>
-        <div class="fw-semibold" style="font-size:0.9rem;color:var(--text-primary)">{{ review.userName }}</div>
+        <div class="fw-semibold" style="font-size:0.9rem;color:var(--text-primary)">{{ review.username }}</div>
         <div class="small" style="color:var(--text-muted)">{{ review.date }}</div>
       </div>
       <div class="ms-auto stars" style="font-size:0.85rem">{{ stars(review.rating) }}</div>

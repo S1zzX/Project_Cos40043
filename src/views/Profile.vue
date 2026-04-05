@@ -2,8 +2,6 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth.js'
 
-document.title = 'My Profile | S1zz'
-
 const auth = useAuthStore()
 
 const form = reactive({
@@ -27,6 +25,7 @@ const saving = ref(false)
 const savingPw = ref(false)
 
 onMounted(() => {
+  document.title = 'My Profile | S1zz'
   if (auth.currentUser) {
     form.firstName = auth.currentUser.firstName || ''
     form.lastName = auth.currentUser.lastName || ''

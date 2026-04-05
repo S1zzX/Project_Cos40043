@@ -1,16 +1,25 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
 import { useAuthStore } from '../stores/auth.js'
 
-document.title = 'Shopping Cart | S1zz'
 const cart = useCartStore()
 const auth = useAuthStore()
 const router = useRouter()
 
+onMounted(() => {
+  document.title = 'Shopping Cart | S1zz'
+})
+
 if (auth.isAdmin) {
   router.push('/dashboard')
+}
+
+function checkout() {
+  if (cart.items.length === 0) return
+  alert('Order placed successfully! Thank you for shopping with S1zz.')
+  cart.clearCart()
 }
 
 const subtotal = computed(() => cart.totalPrice)
@@ -88,7 +97,7 @@ const total = computed(() => subtotal.value + tax.value)
               <span class="fw-bold fs-5">Total</span>
               <span class="fw-bold fs-5" style="color:var(--brand)">${{ (total + (subtotal < 50 ? 9.99 : 0)).toFixed(2) }}</span>
             </div>
-            <button class="btn btn-primary w-100 btn-lg">
+            <button class="btn btn-primary w-100 btn-lg" @click="checkout">
               <i class="bi bi-credit-card me-2"></i>Checkout
             </button>
             <RouterLink to="/products" class="btn btn-outline-secondary w-100 mt-2">

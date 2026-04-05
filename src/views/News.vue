@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import PaginationBar from '../components/PaginationBar.vue'
 
 const allNews = ref([])
@@ -20,7 +20,10 @@ async function loadNews() {
   }
 }
 loadNews()
-document.title = 'News | S1zz'
+
+onMounted(() => {
+  document.title = 'News | S1zz'
+})
 
 const categories = computed(() => ['All', ...new Set(allNews.value.map(n => n.category))])
 const selectedCategory = ref('All')

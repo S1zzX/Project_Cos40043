@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-document.title = 'About | S1zz'
+onMounted(() => {
+  document.title = 'About | S1zz'
+})
 
 const firstName = ref('')
 const lastName = ref('')

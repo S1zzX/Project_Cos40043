@@ -14,6 +14,8 @@ export const useAuthStore = defineStore('auth', () => {
   const savedUser = loadFromStorage()
   const currentUser = ref(savedUser)
 
+  initUsers()
+
   const isLoggedIn = computed(() => !!currentUser.value)
   const isAdmin = computed(() => currentUser.value?.role === 'admin')
   const userName = computed(() => currentUser.value ? `${currentUser.value.firstName} ${currentUser.value.lastName}` : '')

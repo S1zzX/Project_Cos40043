@@ -69,13 +69,8 @@ function logout() {
               </RouterLink>
             </li>
             <li v-if="!auth.isAdmin" class="nav-item position-relative">
-              <RouterLink class="nav-link" to="/cart" title="Cart">
+              <RouterLink class="nav-link" to="/cart" title="Cart" v-badge="cart.totalItems">
                 <i class="bi bi-cart3 fs-5"></i>
-                <span
-                  v-if="cart.totalItems > 0"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  style="font-size:0.6rem;padding:3px 5px;"
-                >{{ cart.totalItems }}</span>
               </RouterLink>
             </li>
 
