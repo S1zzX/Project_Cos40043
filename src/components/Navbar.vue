@@ -68,7 +68,7 @@ function logout() {
                 <i class="bi bi-heart fs-5"></i>
               </RouterLink>
             </li>
-            <li class="nav-item position-relative">
+            <li v-if="!auth.isAdmin" class="nav-item position-relative">
               <RouterLink class="nav-link" to="/cart" title="Cart">
                 <i class="bi bi-cart3 fs-5"></i>
                 <span
@@ -92,6 +92,11 @@ function logout() {
                   <span class="dropdown-item-text small" style="color:var(--text-muted)">{{ auth.currentUser?.email }}</span>
                 </li>
                 <li><hr class="dropdown-divider"></li>
+                <li>
+                  <RouterLink class="dropdown-item" to="/profile">
+                    <i class="bi bi-person me-2"></i>My Profile
+                  </RouterLink>
+                </li>
                 <li>
                   <button class="dropdown-item" style="color:var(--brand-danger)" @click="logout">
                     <i class="bi bi-box-arrow-right me-2"></i>Logout

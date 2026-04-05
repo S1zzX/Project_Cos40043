@@ -27,17 +27,33 @@ export const useProductsStore = defineStore('products', () => {
   }
   function saveCustomProducts(p) { localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(p)) }
 
+  const mapDummyProduct = (p) => ({
+    id: p.id,
+    title: p.title,
+    price: p.price,
+    category: p.category,
+    description: p.description,
+    image: p.thumbnail || (p.images && p.images[0]) || '',
+    rating: { rate: p.rating, count: p.stock }
+  })
+
   async function fetchProducts() {
     loading.value = true
     error.value = null
     try {
       const [apiRes, catRes] = await Promise.all([
-        axios.get('https://fakestoreapi.com/products'),
-        axios.get('https://fakestoreapi.com/products/categories')
+        axios.get('https://dummyjson.com/products?limit=0'),
+        axios.get('https://dummyjson.com/products/categories')
       ])
       const custom = getCustomProducts()
-      products.value = [...apiRes.data, ...custom]
-      categories.value = catRes.data
+      const mappedApiProducts = apiRes.data.products.map(mapDummyProduct)
+      products.value = [...mappedApiProducts, ...custom]
+      
+      const activeCategories = new Set(products.value.map(p => p.category))
+      const allFetchedCategories = catRes.data.map(c => typeof c === 'string' ? c : c.slug)
+      
+      // Filter out categories that are empty
+      categories.value = allFetchedCategories.filter(c => activeCategories.has(c))
     } catch (e) {
       error.value = 'Failed to load products. Please try again.'
       console.error(e)
@@ -52,8 +68,8 @@ export const useProductsStore = defineStore('products', () => {
     const customFound = custom.find(p => p.id === id)
     if (customFound) return customFound
     try {
-      const res = await axios.get(`https://fakestoreapi.com/products/${id}`)
-      return res.data
+      const res = await axios.get(`https://dummyjson.com/products/${id}`)
+      return mapDummyProduct(res.data)
     } catch {
       return null
     }

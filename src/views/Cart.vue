@@ -1,10 +1,17 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
+import { useAuthStore } from '../stores/auth.js'
 
 document.title = 'Shopping Cart | S1zz'
 const cart = useCartStore()
+const auth = useAuthStore()
+const router = useRouter()
+
+if (auth.isAdmin) {
+  router.push('/dashboard')
+}
 
 const subtotal = computed(() => cart.totalPrice)
 const tax = computed(() => subtotal.value * 0.1)
