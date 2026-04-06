@@ -1,23 +1,5 @@
-/**
- * Stage 3 Advanced Feature: Pinia Persistence Plugin
- * ====================================================
- * A custom Pinia plugin that automatically syncs any store's
- * state to localStorage with:
- *  - Deep reactive watching (via Vue watch)
- *  - Debouncing (prevents excessive writes during rapid updates)
- *  - Selective key persistence (opt-in via store.$persist option)
- *  - Auto-rehydration on store init
- *
- * Usage in stores:
- *   defineStore('myStore', { ... }, { persist: { keys: ['items', 'user'] } })
- *
- * Or with the usePersistedState composable inside setup stores:
- *   const count = usePersistedState('myKey', ref(0))
- */
-
 import { watch, ref, isRef } from 'vue'
 
-// ─── Debounce helper ──────────────────────────────────────────
 function debounce(fn, delay = 300) {
   let timer
   return (...args) => {
@@ -26,15 +8,6 @@ function debounce(fn, delay = 300) {
   }
 }
 
-// ─── Composable: usePersistedState ────────────────────────────
-/**
- * Wraps a ref so its value is automatically synced to localStorage.
- * Rehydrates from storage on first use.
- *
- * @param {string} storageKey  - The localStorage key to use
- * @param {Ref}    defaultValue - The default ref value if nothing in storage
- * @returns {Ref}               - A reactive ref that auto-persists
- */
 export function usePersistedState(storageKey, defaultValue) {
   // Attempt to rehydrate from localStorage
   let initialValue = isRef(defaultValue) ? defaultValue.value : defaultValue
@@ -74,19 +47,6 @@ export function usePersistedState(storageKey, defaultValue) {
  *   defineStore('cart', {
  *     state: () => ({ items: [] }),
  *     persist: { prefix: 's1zz', keys: ['items'] }
- *   })
- *
- * @param {PiniaPluginContext} context
- */
-export function piniaPersistedPlugin({ store, options }) {
-  const persistOptions = options?.persist
-  if (!persistOptions) return   // Store opted out — do nothing
-
-  const prefix = persistOptions.prefix || 's1zz'
-  const keys = persistOptions.keys        // If undefined, persists all state keys
-  const debounceMs = persistOptions.debounce ?? 250
-
-  // Determine which keys to persist
   const stateKeys = keys || Object.keys(store.$state)
 
   // ① Rehydrate: load from localStorage into store on plugin init
@@ -102,7 +62,7 @@ export function piniaPersistedPlugin({ store, options }) {
     }
   })
 
-  // ② Persist: deep-watch each key and write changes to localStorage
+  // Watch for changes and persist
   stateKeys.forEach(key => {
     const storageKey = `${prefix}_${store.$id}_${key}`
     const debouncedWrite = debounce((value) => {
@@ -120,7 +80,6 @@ export function piniaPersistedPlugin({ store, options }) {
     )
   })
 
-  // ③ Expose a utility action so any store can manually flush or clear
   store.$persist = {
     clear() {
       stateKeys.forEach(key => {
