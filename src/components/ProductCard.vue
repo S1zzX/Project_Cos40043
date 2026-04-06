@@ -63,10 +63,10 @@ export default {
         />
       </RouterLink>
       <button
-        class="btn-wishlistStore"
+        class="btn-wishlist"
         :class="{ active: isWishlisted }"
         @click="handleWishlist"
-        :title="authStore.isLoggedIn ? 'Toggle wishlistStore' : 'Login to wishlistStore'"
+        :title="authStore.isLoggedIn ? 'Toggle wishlist' : 'Login to wishlist'"
       >
         <i :class="isWishlisted ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
       </button>
@@ -93,9 +93,9 @@ export default {
           </button>
         </div>
         <button
-          v-tooltip="'Add to cartStore'"
+          v-tooltip="'Add to cart'"
           class="btn btn-primary w-100 btn-sm" @click="handleCart">
-          <i class="bi bi-cartStore-plus me-1"></i>Add to Cart
+          <i class="bi bi-cart-plus me-1"></i>Add to Cart
         </button>
       </div>
     </div>
