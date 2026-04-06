@@ -60,7 +60,7 @@ export default {
             <form @submit.prevent="handleLogin" novalidate aria-label="Login form">
               <div class="mb-3">
                 <label class="form-label" for="login-email">Email Address</label>
-                <input id="login-email" v-model="form.email" type="email"
+                <input id="login-email" v-model.trim="form.email" type="email"
                   class="form-control" :class="{ 'is-invalid': errors.email }"
                   placeholder="you@example.com" autocomplete="email" v-focus />
                 <div class="invalid-feedback">{{ errors.email }}</div>
