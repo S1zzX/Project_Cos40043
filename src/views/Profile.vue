@@ -18,15 +18,14 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore),
-    auth() { return this.authStore; },
     initials() {
       const f = this.form.firstName?.[0] || ''
       const l = this.form.lastName?.[0] || ''
       return (f + l).toUpperCase() || '?'
     },
     joinDate() {
-      if (!this.auth.currentUser?.id) return ''
-      const id = this.auth.currentUser.id
+      if (!this.authStore.currentUser?.id) return ''
+      const id = this.authStore.currentUser.id
       if (id === 1 || id === 2) return 'March 2026'
       return new Date(id).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
     }
@@ -48,7 +47,7 @@ export default {
       this.saving = true
       await new Promise(r => setTimeout(r, 300))
 
-      const res = await this.auth.updateProfile({
+      const res = await this.authStore.updateProfile({
         firstName: this.form.firstName.trim(),
         lastName: this.form.lastName.trim()
       })
@@ -65,7 +64,7 @@ export default {
       this.savingPw = true
       await new Promise(r => setTimeout(r, 300))
 
-      const res = await this.auth.changePassword({
+      const res = await this.authStore.changePassword({
         currentPassword: this.passwordForm.currentPassword,
         newPassword: this.passwordForm.newPassword
       })
@@ -84,10 +83,10 @@ export default {
   },
   mounted() {
     document.title = 'My Profile | S1zz'
-    if (this.auth.currentUser) {
-      this.form.firstName = this.auth.currentUser.firstName || ''
-      this.form.lastName = this.auth.currentUser.lastName || ''
-      this.form.email = this.auth.currentUser.email || ''
+    if (this.authStore.currentUser) {
+      this.form.firstName = this.authStore.currentUser.firstName || ''
+      this.form.lastName = this.authStore.currentUser.lastName || ''
+      this.form.email = this.authStore.currentUser.email || ''
     }
   }
 }
@@ -112,9 +111,9 @@ export default {
             <div class="avatar-lg mx-auto mb-3">{{ initials }}</div>
             <div class="fw-bold fs-5">{{ form.firstName }} {{ form.lastName }}</div>
             <div class="small mb-3" style="color:var(--text-muted)">{{ form.email }}</div>
-            <span class="badge mx-auto" :style="auth.isAdmin ? 'background:rgba(245,158,11,0.15);color:var(--brand-accent)' : 'background:rgba(108,63,255,0.12);color:var(--brand)'">
-              <i :class="auth.isAdmin ? 'bi bi-shield-fill me-1' : 'bi bi-person-fill me-1'"></i>
-              {{ auth.isAdmin ? 'Admin' : 'Customer' }}
+            <span class="badge mx-auto" :style="authStore.isAdmin ? 'background:rgba(245,158,11,0.15);color:var(--brand-accent)' : 'background:rgba(108,63,255,0.12);color:var(--brand)'">
+              <i :class="authStore.isAdmin ? 'bi bi-shield-fill me-1' : 'bi bi-person-fill me-1'"></i>
+              {{ authStore.isAdmin ? 'Admin' : 'Customer' }}
             </span>
             <div class="small mt-3" style="color:var(--text-muted)">
               <i class="bi bi-calendar3 me-1"></i>Member since {{ joinDate }}

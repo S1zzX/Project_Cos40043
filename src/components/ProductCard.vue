@@ -13,20 +13,16 @@ export default {
     }
   },
   computed: {
-    ...mapStores(useAuthStore, useCartStore, useWishlistStore, useProductsStore),
-    auth() { return this.authStore; },
-    cart() { return this.cartStore; },
-    wishlist() { return this.wishlistStore; },
-    productStore() { return this.productsStore; }, // maps to useProductsStore
+    ...mapStores(useAuthStore, useCartStore, useWishlistStore, useProductsStore), // maps to useProductsStore
 
     isWishlisted() {
-      return this.wishlist.isInWishlist(this.product.id)
+      return this.wishlistStore.isInWishlist(this.product.id)
     },
     likeCount() {
-      return this.productStore.getLikeCount(this.product.id)
+      return this.productsStore.getLikeCount(this.product.id)
     },
     isLiked() {
-      return this.auth.isLoggedIn && this.productStore.isLikedByUser(this.product.id, this.auth.currentUser?.id)
+      return this.authStore.isLoggedIn && this.productsStore.isLikedByUser(this.product.id, this.authStore.currentUser?.id)
     },
     stars() {
       const r = Math.round(this.product.rating?.rate || 0)
@@ -38,15 +34,15 @@ export default {
   },
   methods: {
     handleCart() {
-      this.cart.addToCart(this.product)
+      this.cartStore.addToCart(this.product)
     },
     handleWishlist() {
-      if (!this.auth.isLoggedIn) return
-      this.wishlist.toggleWishlist(this.product)
+      if (!this.authStore.isLoggedIn) return
+      this.wishlistStore.toggleWishlist(this.product)
     },
     handleLike() {
-      if (!this.auth.isLoggedIn) return
-      this.productStore.toggleLike(this.product.id, this.auth.currentUser.id)
+      if (!this.authStore.isLoggedIn) return
+      this.productsStore.toggleLike(this.product.id, this.authStore.currentUser.id)
     }
   }
 }
@@ -67,10 +63,10 @@ export default {
         />
       </RouterLink>
       <button
-        class="btn-wishlist"
+        class="btn-wishlistStore"
         :class="{ active: isWishlisted }"
         @click="handleWishlist"
-        :title="auth.isLoggedIn ? 'Toggle wishlist' : 'Login to wishlist'"
+        :title="authStore.isLoggedIn ? 'Toggle wishlistStore' : 'Login to wishlistStore'"
       >
         <i :class="isWishlisted ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
       </button>
@@ -90,16 +86,16 @@ export default {
         <div class="d-flex align-items-center justify-content-between mb-2">
           <span class="product-price">${{ product.price?.toFixed(2) }}</span>
           <button
-            v-tooltip="auth.isLoggedIn ? `Like this product (${likeCount})` : 'Login to like products'"
+            v-tooltip="authStore.isLoggedIn ? `Like this product (${likeCount})` : 'Login to like products'"
             class="btn-like" :class="{ liked: isLiked }" @click="handleLike">
             <i :class="isLiked ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
             <span>{{ likeCount }}</span>
           </button>
         </div>
         <button
-          v-tooltip="'Add to cart'"
+          v-tooltip="'Add to cartStore'"
           class="btn btn-primary w-100 btn-sm" @click="handleCart">
-          <i class="bi bi-cart-plus me-1"></i>Add to Cart
+          <i class="bi bi-cartStore-plus me-1"></i>Add to Cart
         </button>
       </div>
     </div>

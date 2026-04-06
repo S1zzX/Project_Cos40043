@@ -26,19 +26,15 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore, useCartStore, useWishlistStore, useProductsStore),
-    auth() { return this.authStore; },
-    cart() { return this.cartStore; },
-    wishlist() { return this.wishlistStore; },
-    productStore() { return this.productsStore; },
 
     isWishlisted() {
-      return this.product && this.wishlist.isInWishlist(this.product.id)
+      return this.product && this.wishlistStore.isInWishlist(this.product.id)
     },
     likeCount() {
-      return this.product ? this.productStore.getLikeCount(this.product.id) : 0
+      return this.product ? this.productsStore.getLikeCount(this.product.id) : 0
     },
     isLiked() {
-      return this.product && this.auth.isLoggedIn && this.productStore.isLikedByUser(this.product.id, this.auth.currentUser?.id)
+      return this.product && this.authStore.isLoggedIn && this.productsStore.isLikedByUser(this.product.id, this.authStore.currentUser?.id)
     },
     avgRating() {
       if (!this.reviews.length) return this.product?.rating?.rate || 0
@@ -56,8 +52,8 @@ export default {
       this.loading = true
       const pId = this.$route.params.id
       const id = isNaN(pId) ? pId : Number(pId)
-      this.product = await this.productStore.fetchProductById(id)
-      this.reviews = this.productStore.getProductReviews(id)
+      this.product = await this.productsStore.fetchProductById(id)
+      this.reviews = this.productsStore.getProductReviews(id)
       this.loading = false
       if (this.product) {
         this.editingProduct = { ...this.product }
@@ -65,17 +61,17 @@ export default {
       }
     },
     addToCart() {
-      this.cart.addToCart(this.product, this.qty)
+      this.cartStore.addToCart(this.product, this.qty)
       this.addedToCart = true
       setTimeout(() => this.addedToCart = false, 2000)
     },
     toggleLike() {
-      if (!this.auth.isLoggedIn) { this.$router.push('/login'); return }
-      this.productStore.toggleLike(this.product.id, this.auth.currentUser.id)
+      if (!this.authStore.isLoggedIn) { this.$router.push('/login'); return }
+      this.productsStore.toggleLike(this.product.id, this.authStore.currentUser.id)
     },
     toggleWishlist() {
-      if (!this.auth.isLoggedIn) { this.$router.push('/login'); return }
-      this.wishlist.toggleWishlist(this.product)
+      if (!this.authStore.isLoggedIn) { this.$router.push('/login'); return }
+      this.wishlistStore.toggleWishlist(this.product)
     },
     submitReview() {
       this.reviewError = ''
@@ -83,30 +79,30 @@ export default {
         this.reviewError = 'Please enter a review comment.'
         return
       }
-      this.productStore.addReview({
+      this.productsStore.addReview({
         productId: this.product.id,
-        userId: this.auth.currentUser.id,
-        username: this.auth.userName,
+        userId: this.authStore.currentUser.id,
+        username: this.authStore.userName,
         rating: this.reviewForm.rating,
         comment: this.reviewForm.comment
       })
-      this.reviews = this.productStore.getProductReviews(this.product.id)
+      this.reviews = this.productsStore.getProductReviews(this.product.id)
       this.reviewForm = { rating: 5, comment: '' }
       this.reviewSuccess = true
       setTimeout(() => this.reviewSuccess = false, 3000)
     },
     deleteReview(reviewId) {
-      this.productStore.deleteReview(reviewId)
-      this.reviews = this.productStore.getProductReviews(this.product.id)
+      this.productsStore.deleteReview(reviewId)
+      this.reviews = this.productsStore.getProductReviews(this.product.id)
     },
     saveEdit() {
-      this.productStore.updateProduct(this.product.id, this.editingProduct)
+      this.productsStore.updateProduct(this.product.id, this.editingProduct)
       this.product = { ...this.editingProduct }
       this.isEditMode = false
     },
     deleteProduct() {
       if (confirm('Delete this product? This cannot be undone.')) {
-        this.productStore.deleteProduct(this.product.id)
+        this.productsStore.deleteProduct(this.product.id)
         this.$router.push('/products')
       }
     }
@@ -134,7 +130,7 @@ export default {
 
       <template v-else>
         <!-- Admin Edit Modal -->
-        <div v-if="auth.isAdmin && product.isCustom" class="alert alert-info d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <div v-if="authStore.isAdmin && product.isCustom" class="alert alert-info d-flex align-items-center gap-3 mb-4 flex-wrap">
           <span class="fw-semibold"><i class="bi bi-shield-check me-1"></i>Admin Controls</span>
           <button class="btn btn-sm btn-outline-primary" @click="isEditMode = !isEditMode">
             <i class="bi bi-pencil me-1"></i>{{ isEditMode ? 'Cancel Edit' : 'Edit Product' }}
@@ -185,7 +181,7 @@ export default {
                 <button class="btn btn-outline-secondary" @click="qty++">+</button>
               </div>
               <button class="btn btn-primary flex-grow-1" @click="addToCart">
-                <i class="bi bi-cart-plus me-2"></i>{{ addedToCart ? '✓ Added!' : 'Add to Cart' }}
+                <i class="bi bi-cartStore-plus me-2"></i>{{ addedToCart ? '✓ Added!' : 'Add to Cart' }}
               </button>
             </div>
             <div class="d-flex gap-3">
@@ -208,7 +204,7 @@ export default {
             <div v-for="review in reviews" :key="review.id" class="position-relative">
               <ReviewCard :review="review" />
               <button
-                v-if="auth.isAdmin || (auth.currentUser && auth.currentUser.id === review.userId)"
+                v-if="authStore.isAdmin || (authStore.currentUser && authStore.currentUser.id === review.userId)"
                 class="btn btn-sm btn-outline-danger position-absolute"
                 style="top:0.5rem;right:0.5rem;"
                 @click="deleteReview(review.id)"
@@ -219,7 +215,7 @@ export default {
           </div>
 
           <!-- Review Form -->
-          <div v-if="auth.isLoggedIn" class="card p-4 mt-4">
+          <div v-if="authStore.isLoggedIn" class="card p-4 mt-4">
             <h5 class="fw-bold mb-3">Write a Review</h5>
             <div class="mb-3">
               <label class="form-label">Your Rating</label>

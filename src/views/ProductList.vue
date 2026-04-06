@@ -21,11 +21,8 @@ export default {
   },
   computed: {
     ...mapStores(useProductsStore),
-    store() {
-      return this.productsStore
-    },
     filtered() {
-      let list = [...this.store.products]
+      let list = [...this.productsStore.products]
 
       if (this.searchQuery.trim()) {
         const q = this.searchQuery.toLowerCase()
@@ -70,7 +67,7 @@ export default {
   },
   mounted() {
     document.title = 'Shop All Products | S1zz'
-    if (this.store.products.length === 0) this.store.fetchProducts()
+    if (this.productsStore.products.length === 0) this.productsStore.fetchProducts()
   }
 }
 </script>
@@ -113,7 +110,7 @@ export default {
                   <input id="cat-all" v-model="selectedCategory" type="radio" class="form-check-input" value="all" name="category">
                   <label class="form-check-label" for="cat-all">All Categories</label>
                 </div>
-                <div v-for="cat in store.categories" :key="cat" class="form-check">
+                <div v-for="cat in productsStore.categories" :key="cat" class="form-check">
                   <input :id="`cat-${cat}`" v-model="selectedCategory" type="radio" class="form-check-input" :value="cat" name="category">
                   <label class="form-check-label text-capitalize" :for="`cat-${cat}`">{{ cat }}</label>
                 </div>
@@ -139,10 +136,10 @@ export default {
 
         <!-- Product Grid -->
         <div class="col-12 col-lg-9">
-          <div v-if="store.loading" class="loading-overlay">
+          <div v-if="productsStore.loading" class="loading-overlay">
             <div class="spinner-custom"></div>
           </div>
-          <div v-else-if="store.error" class="alert alert-danger">{{ store.error }}</div>
+          <div v-else-if="productsStore.error" class="alert alert-danger">{{ productsStore.error }}</div>
           <div v-else-if="paginated.length === 0" class="text-center py-5">
             <i class="bi bi-search fs-1" style="color:var(--text-muted)"></i>
             <p class="mt-3 text-muted-custom">No products match your filters.</p>

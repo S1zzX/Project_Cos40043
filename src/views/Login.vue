@@ -13,7 +13,6 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore),
-    auth() { return this.authStore; }
   },
   methods: {
     validate() {
@@ -28,7 +27,7 @@ export default {
       this.loading = true
       this.globalError = ''
       await new Promise(r => setTimeout(r, 350))
-      const result = this.auth.login(this.form.email, this.form.password)
+      const result = this.authStore.login(this.form.email, this.form.password)
       if (result.success) this.$router.push('/')
       else this.globalError = result.error
       this.loading = false

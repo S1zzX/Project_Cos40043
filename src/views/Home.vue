@@ -10,17 +10,15 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore, useProductsStore),
-    auth() { return this.authStore; },
-    productStore() { return this.productsStore; },
     featured() {
-      return this.productStore.products.slice(0, 4)
+      return this.productsStore.products.slice(0, 4)
     }
   },
   async mounted() {
     document.title = 'Home | S1zz'
-    await this.auth.initUsers()
-    if (this.productStore.products.length === 0) {
-      await this.productStore.fetchProducts()
+    await this.authStore.initUsers()
+    if (this.productsStore.products.length === 0) {
+      await this.productsStore.fetchProducts()
     }
   }
 }
@@ -36,7 +34,7 @@ export default {
           <div class="col-12 col-lg-6 animate-up">
             <span class="section-tag"><i class="bi bi-stars me-1"></i>Premium Shopping</span>
             <h1 class="display-5 fw-bold mb-3 mt-2" style="color:var(--text-primary)">
-              Your favourite store,<br>
+              Your favourite productsStore,<br>
               <span style="color:var(--brand)">now online.</span>
             </h1>
             <p class="lead mb-4" style="color:var(--text-secondary);font-size:1rem;">
@@ -46,7 +44,7 @@ export default {
               <RouterLink to="/products" class="btn btn-primary btn-lg px-4">
                 <i class="bi bi-grid me-2"></i>Shop Now
               </RouterLink>
-              <RouterLink v-if="!auth.isLoggedIn" to="/register" class="btn btn-outline-primary btn-lg px-4">
+              <RouterLink v-if="!authStore.isLoggedIn" to="/register" class="btn btn-outline-primary btn-lg px-4">
                 Join Free
               </RouterLink>
             </div>
@@ -106,7 +104,7 @@ export default {
           </RouterLink>
         </div>
 
-        <div v-if="productStore.loading" class="loading-overlay">
+        <div v-if="productsStore.loading" class="loading-overlay">
           <div class="spinner-custom"></div>
         </div>
         <div v-else class="row g-4">
@@ -127,7 +125,7 @@ export default {
             <p style="color:var(--text-secondary);font-size:0.9rem;">
               Sign up for personalised deals, new collection alerts, and flash sales — straight to your inbox.
             </p>
-            <RouterLink v-if="!auth.isLoggedIn" to="/register" class="btn btn-primary mt-3">
+            <RouterLink v-if="!authStore.isLoggedIn" to="/register" class="btn btn-primary mt-3">
               <i class="bi bi-envelope me-2"></i>Create Free Account
             </RouterLink>
             <RouterLink v-else to="/products" class="btn btn-primary mt-3">

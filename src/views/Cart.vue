@@ -6,10 +6,8 @@ import { useAuthStore } from '../stores/auth.js'
 export default {
   computed: {
     ...mapStores(useCartStore, useAuthStore),
-    cart() { return this.cartStore; },
-    auth() { return this.authStore; },
     subtotal() {
-      return this.cart.totalPrice
+      return this.cartStore.totalPrice
     },
     tax() {
       return this.subtotal * 0.1
@@ -20,9 +18,9 @@ export default {
   },
   methods: {
     checkout() {
-      if (this.cart.items.length === 0) return
+      if (this.cartStore.items.length === 0) return
       alert('Order placed successfully! Thank you for shopping with S1zz.')
-      this.cart.clearCart()
+      this.cartStore.clearCart()
     }
   },
   mounted() {
@@ -36,9 +34,9 @@ export default {
     <div class="container">
       <h1 class="fw-bold mb-4"><i class="bi bi-cart3 me-2 text-brand"></i>Shopping Cart</h1>
 
-      <div v-if="cart.items.length === 0" class="text-center py-5">
-        <i class="bi bi-cart-x" style="font-size:4rem;color:var(--text-muted)"></i>
-        <h4 class="mt-3 fw-bold">Your cart is empty</h4>
+      <div v-if="cartStore.items.length === 0" class="text-center py-5">
+        <i class="bi bi-cartStore-x" style="font-size:4rem;color:var(--text-muted)"></i>
+        <h4 class="mt-3 fw-bold">Your cartStore is empty</h4>
         <p class="text-muted-custom">Add some products to get started!</p>
         <RouterLink to="/products" class="btn btn-primary mt-2">
           <i class="bi bi-grid me-2"></i>Browse Products
@@ -50,9 +48,9 @@ export default {
         <div class="col-12 col-lg-8">
           <div class="card p-3">
             <div
-              v-for="item in cart.items"
+              v-for="item in cartStore.items"
               :key="item.id"
-              class="cart-item d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
+              class="cartStore-item d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
             >
               <img :src="item.image" :alt="item.title" style="width:70px;height:70px;object-fit:contain;background:rgba(255,255,255,0.05);border-radius:8px;padding:4px;flex-shrink:0;" />
               <div class="flex-grow-1 min-w-0">
@@ -63,17 +61,17 @@ export default {
                 <div class="fw-bold mt-1" style="color:var(--brand)">${{ item.price.toFixed(2) }}</div>
               </div>
               <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <button class="btn btn-sm btn-outline-secondary" style="width:30px;padding:0;" @click="cart.updateQuantity(item.id, item.quantity - 1)">-</button>
+                <button class="btn btn-sm btn-outline-secondary" style="width:30px;padding:0;" @click="cartStore.updateQuantity(item.id, item.quantity - 1)">-</button>
                 <span class="fw-semibold" style="min-width:24px;text-align:center;">{{ item.quantity }}</span>
-                <button class="btn btn-sm btn-outline-secondary" style="width:30px;padding:0;" @click="cart.updateQuantity(item.id, item.quantity + 1)">+</button>
+                <button class="btn btn-sm btn-outline-secondary" style="width:30px;padding:0;" @click="cartStore.updateQuantity(item.id, item.quantity + 1)">+</button>
               </div>
               <div class="fw-bold text-end flex-shrink-0" style="min-width:70px;">${{ (item.price * item.quantity).toFixed(2) }}</div>
-              <button class="btn btn-sm btn-outline-danger flex-shrink-0" @click="cart.removeFromCart(item.id)">
+              <button class="btn btn-sm btn-outline-danger flex-shrink-0" @click="cartStore.removeFromCart(item.id)">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
             <div class="d-flex justify-content-end mt-2 pt-2" style="border-top:1px solid var(--border)">
-              <button class="btn btn-sm btn-outline-danger" @click="cart.clearCart()">
+              <button class="btn btn-sm btn-outline-danger" @click="cartStore.clearCart()">
                 <i class="bi bi-trash me-1"></i>Clear Cart
               </button>
             </div>

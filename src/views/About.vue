@@ -62,7 +62,7 @@ export default {
               We curate electronics, fashion, jewellery, and everyday essentials — sourced from trusted suppliers and vetted for quality. Our platform supports independent sellers while delivering a seamless experience.
             </p>
             <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.7;" class="mb-0">
-              With personalised wishlists, instant cart management, and a growing community of reviewers, S1zz gives you the tools to shop with confidence.
+              With personalised wishlists, instant cartStore management, and a growing community of reviewers, S1zz gives you the tools to shop with confidence.
             </p>
 
             <hr style="border-color:var(--border)">

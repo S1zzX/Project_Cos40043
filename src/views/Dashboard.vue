@@ -16,10 +16,8 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore, useProductsStore),
-    auth() { return this.authStore; },
-    productStore() { return this.productsStore; },
     categories() {
-      return this.productStore.categories.length ? this.productStore.categories : ['electronics', "men's clothing", "women's clothing", 'jewelery']
+      return this.productsStore.categories.length ? this.productsStore.categories : ['electronics', "men's clothing", "women's clothing", 'jewelery']
     }
   },
   methods: {
@@ -60,28 +58,28 @@ export default {
         image: this.form.image.trim() || 'https://via.placeholder.com/300x300?text=S1zz'
       }
       if (this.editingId) {
-        this.productStore.updateProduct(this.editingId, data)
+        this.productsStore.updateProduct(this.editingId, data)
         this.successMsg = 'Product updated successfully!'
       } else {
-        this.productStore.createProduct(data)
+        this.productsStore.createProduct(data)
         this.successMsg = 'Product created successfully!'
       }
-      this.customProducts = this.productStore.getCustomProducts()
+      this.customProducts = this.productsStore.getCustomProducts()
       this.showForm = false
       this.editingId = null
       setTimeout(() => this.successMsg = '', 3000)
     },
     deleteProduct(id) {
       if (confirm('Are you sure you want to delete this product?')) {
-        this.productStore.deleteProduct(id)
-        this.customProducts = this.productStore.getCustomProducts()
+        this.productsStore.deleteProduct(id)
+        this.customProducts = this.productsStore.getCustomProducts()
         this.successMsg = 'Product deleted.'
         setTimeout(() => this.successMsg = '', 3000)
       }
     }
   },
   mounted() {
-    this.customProducts = this.productStore.getCustomProducts()
+    this.customProducts = this.productsStore.getCustomProducts()
   }
 }
 </script>
@@ -201,7 +199,7 @@ export default {
           { icon: 'bi-box-seam', label: 'Custom Products', value: customProducts.length, color: 'var(--brand)' },
           { icon: 'bi-people', label: 'Registered Users', value: '2+', color: 'var(--brand-success)' },
           { icon: 'bi-star', label: 'Total Reviews', value: 'Live', color: 'var(--brand-accent)' },
-          { icon: 'bi-shield-check', label: 'Admin Role', value: auth.userName, color: 'var(--brand-danger)' }
+          { icon: 'bi-shield-check', label: 'Admin Role', value: authStore.userName, color: 'var(--brand-danger)' }
         ]" :key="stat.label">
           <div class="card p-3 text-center">
             <i :class="stat.icon" style="font-size:1.5rem;" :style="{color: stat.color}"></i>

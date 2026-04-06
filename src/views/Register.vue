@@ -15,7 +15,6 @@ export default {
   },
   computed: {
     ...mapStores(useAuthStore),
-    auth() { return this.authStore; }
   },
   methods: {
     strengthScore(p) {
@@ -44,9 +43,9 @@ export default {
       if (!this.validate()) return
       this.loading = true
       this.globalError = ''
-      await this.auth.initUsers()
+      await this.authStore.initUsers()
       await new Promise(r => setTimeout(r, 350))
-      const result = this.auth.register({
+      const result = this.authStore.register({
         firstName: this.form.firstName.trim(),
         lastName: this.form.lastName.trim(),
         email: this.form.email,

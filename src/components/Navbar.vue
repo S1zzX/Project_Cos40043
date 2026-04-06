@@ -7,13 +7,10 @@ import { useThemeStore } from '../stores/theme.js'
 export default {
   computed: {
     ...mapStores(useAuthStore, useCartStore, useThemeStore),
-    auth() { return this.authStore; },
-    cart() { return this.cartStore; },
-    theme() { return this.themeStore; }
   },
   methods: {
     logout() {
-      this.auth.logout()
+      this.authStore.logout()
       this.$router.push('/')
     }
   }
@@ -30,8 +27,8 @@ export default {
 
       <!-- Mobile controls -->
       <div class="d-flex align-items-center gap-2 d-lg-none">
-        <button class="theme-toggle" @click="theme.toggle()" :title="theme.theme === 'dark' ? 'Switch to light' : 'Switch to dark'">
-          <i :class="theme.theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+        <button class="theme-toggle" @click="themeStore.toggle()" :title="themeStore.theme === 'dark' ? 'Switch to light' : 'Switch to dark'">
+          <i :class="themeStore.theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
         </button>
         <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false">
           <i class="bi bi-list fs-4" style="color:var(--text-secondary)"></i>
@@ -53,7 +50,7 @@ export default {
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about"><i class="bi bi-info-circle me-1"></i>About</RouterLink>
           </li>
-          <li v-if="auth.isAdmin" class="nav-item">
+          <li v-if="authStore.isAdmin" class="nav-item">
             <RouterLink class="nav-link" to="/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</RouterLink>
           </li>
         </ul>
@@ -62,19 +59,19 @@ export default {
         <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
           <!-- Theme toggle (desktop) -->
           <li class="nav-item d-none d-lg-block">
-            <button class="theme-toggle" @click="theme.toggle()" :title="theme.theme === 'dark' ? 'Light mode' : 'Dark mode'">
-              <i :class="theme.theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
+            <button class="theme-toggle" @click="themeStore.toggle()" :title="themeStore.theme === 'dark' ? 'Light mode' : 'Dark mode'">
+              <i :class="themeStore.theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'"></i>
             </button>
           </li>
 
-          <template v-if="auth.isLoggedIn">
-            <li class="nav-item">
+          <template v-if="authStore.isLoggedIn">
+            <li v-if="!authStore.isAdmin" class="nav-item">
               <RouterLink class="nav-link" to="/wishlist" title="Wishlist">
                 <i class="bi bi-heart fs-5"></i>
               </RouterLink>
             </li>
-            <li v-if="!auth.isAdmin" class="nav-item position-relative">
-              <RouterLink class="nav-link" to="/cart" title="Cart" v-badge="cart.totalItems">
+            <li v-if="!authStore.isAdmin" class="nav-item position-relative">
+              <RouterLink class="nav-link" to="/cart" title="Cart" v-badge="cartStore.totalItems">
                 <i class="bi bi-cart3 fs-5"></i>
               </RouterLink>
             </li>
@@ -82,14 +79,14 @@ export default {
             <!-- User dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <div class="avatar-circle">{{ auth.currentUser?.firstName?.[0]?.toUpperCase() }}</div>
+                <div class="avatar-circle">{{ authStore.currentUser?.firstName?.[0]?.toUpperCase() }}</div>
                 <span class="d-none d-lg-inline fw-semibold" style="font-size:0.875rem;color:var(--text-primary)">
-                  {{ auth.currentUser?.firstName }}
+                  {{ authStore.currentUser?.firstName }}
                 </span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                  <span class="dropdown-item-text small" style="color:var(--text-muted)">{{ auth.currentUser?.email }}</span>
+                  <span class="dropdown-item-text small" style="color:var(--text-muted)">{{ authStore.currentUser?.email }}</span>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
