@@ -1,56 +1,62 @@
-<script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 
-const auth = useAuthStore()
-const router = useRouter()
-const form = reactive({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' })
-const errors = reactive({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' })
-const globalError = ref('')
-const loading = ref(false)
-
-function strengthScore(p) {
-  let s = 0
-  if (p.length >= 8) s++
-  if (/[A-Z]/.test(p)) s++
-  if (/[0-9]/.test(p)) s++
-  if (/[^A-Za-z0-9]/.test(p)) s++
-  return s
-}
-const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong']
-const strengthColor = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981']
-
-function validate() {
-  Object.keys(errors).forEach(k => errors[k] = '')
-  let ok = true
-  if (!form.firstName.trim()) { errors.firstName = 'First name is required.'; ok = false }
-  if (!form.lastName.trim()) { errors.lastName = 'Last name is required.'; ok = false }
-  if (!form.email) { errors.email = 'Email is required.'; ok = false }
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { errors.email = 'Enter a valid email.'; ok = false }
-  if (!form.password) { errors.password = 'Password is required.'; ok = false }
-  else if (form.password.length < 8) { errors.password = 'Min. 8 characters.'; ok = false }
-  else if (!/[A-Z]/.test(form.password)) { errors.password = 'At least one uppercase letter.'; ok = false }
-  if (!form.confirmPassword) { errors.confirmPassword = 'Please confirm your password.'; ok = false }
-  else if (form.password !== form.confirmPassword) { errors.confirmPassword = 'Passwords do not match.'; ok = false }
-  return ok
-}
-
-async function handleRegister() {
-  if (!validate()) return
-  loading.value = true
-  globalError.value = ''
-  await auth.initUsers()
-  await new Promise(r => setTimeout(r, 350))
-  const result = auth.register({
-    firstName: form.firstName.trim(),
-    lastName: form.lastName.trim(),
-    email: form.email,
-    password: form.password
-  })
-  if (result.success) router.push('/')
-  else globalError.value = result.error
-  loading.value = false
+export default {
+  data() {
+    return {
+      form: { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
+      errors: { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
+      globalError: '',
+      loading: false,
+      strengthLabel: ['', 'Weak', 'Fair', 'Good', 'Strong'],
+      strengthColor: ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981']
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore),
+    auth() { return this.authStore; }
+  },
+  methods: {
+    strengthScore(p) {
+      let s = 0
+      if (p.length >= 8) s++
+      if (/[A-Z]/.test(p)) s++
+      if (/[0-9]/.test(p)) s++
+      if (/[^A-Za-z0-9]/.test(p)) s++
+      return s
+    },
+    validate() {
+      Object.keys(this.errors).forEach(k => this.errors[k] = '')
+      let ok = true
+      if (!this.form.firstName.trim()) { this.errors.firstName = 'First name is required.'; ok = false }
+      if (!this.form.lastName.trim()) { this.errors.lastName = 'Last name is required.'; ok = false }
+      if (!this.form.email) { this.errors.email = 'Email is required.'; ok = false }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) { this.errors.email = 'Enter a valid email.'; ok = false }
+      if (!this.form.password) { this.errors.password = 'Password is required.'; ok = false }
+      else if (this.form.password.length < 8) { this.errors.password = 'Min. 8 characters.'; ok = false }
+      else if (!/[A-Z]/.test(this.form.password)) { this.errors.password = 'At least one uppercase letter.'; ok = false }
+      if (!this.form.confirmPassword) { this.errors.confirmPassword = 'Please confirm your password.'; ok = false }
+      else if (this.form.password !== this.form.confirmPassword) { this.errors.confirmPassword = 'Passwords do not match.'; ok = false }
+      return ok
+    },
+    async handleRegister() {
+      if (!this.validate()) return
+      this.loading = true
+      this.globalError = ''
+      await this.auth.initUsers()
+      await new Promise(r => setTimeout(r, 350))
+      const result = this.auth.register({
+        firstName: this.form.firstName.trim(),
+        lastName: this.form.lastName.trim(),
+        email: this.form.email,
+        password: this.form.password
+      })
+      if (result.success) this.$router.push('/')
+      else this.globalError = result.error
+      this.loading = false
+    }
+  }
 }
 </script>
 

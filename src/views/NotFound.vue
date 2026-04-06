@@ -1,10 +1,9 @@
-<script setup>
-import { onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-
-onMounted(() => {
-  document.title = 'Page Not Found | S1zz'
-})
+<script>
+export default {
+  mounted() {
+    document.title = 'Page Not Found | S1zz'
+  }
+}
 </script>
 
 <template>

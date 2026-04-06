@@ -1,32 +1,39 @@
-<script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 
-const auth = useAuthStore()
-const router = useRouter()
-const form = reactive({ email: '', password: '' })
-const errors = reactive({ email: '', password: '' })
-const globalError = ref('')
-const loading = ref(false)
-
-function validate() {
-  let ok = true
-  errors.email = !form.email ? 'Email is required.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? 'Enter a valid email.' : ''
-  errors.password = !form.password ? 'Password is required.' : form.password.length < 6 ? 'Min. 6 characters.' : ''
-  if (errors.email || errors.password) ok = false
-  return ok
-}
-
-async function handleLogin() {
-  if (!validate()) return
-  loading.value = true
-  globalError.value = ''
-  await new Promise(r => setTimeout(r, 350))
-  const result = auth.login(form.email, form.password)
-  if (result.success) router.push('/')
-  else globalError.value = result.error
-  loading.value = false
+export default {
+  data() {
+    return {
+      form: { email: '', password: '' },
+      errors: { email: '', password: '' },
+      globalError: '',
+      loading: false
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore),
+    auth() { return this.authStore; }
+  },
+  methods: {
+    validate() {
+      let ok = true
+      this.errors.email = !this.form.email ? 'Email is required.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email) ? 'Enter a valid email.' : ''
+      this.errors.password = !this.form.password ? 'Password is required.' : this.form.password.length < 6 ? 'Min. 6 characters.' : ''
+      if (this.errors.email || this.errors.password) ok = false
+      return ok
+    },
+    async handleLogin() {
+      if (!this.validate()) return
+      this.loading = true
+      this.globalError = ''
+      await new Promise(r => setTimeout(r, 350))
+      const result = this.auth.login(this.form.email, this.form.password)
+      if (result.success) this.$router.push('/')
+      else this.globalError = result.error
+      this.loading = false
+    }
+  }
 }
 </script>
 

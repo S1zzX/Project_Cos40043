@@ -1,63 +1,77 @@
-<script setup>
-import { ref, computed, onMounted } from 'vue'
+<script>
 import PaginationBar from '../components/PaginationBar.vue'
 
-const allNews = ref([])
-const searchQuery = ref('')
-const currentPage = ref(1)
-const perPage = 6
-const loading = ref(true)
-const expandedId = ref(null)
-
-async function loadNews() {
-  try {
-    const res = await fetch('/data/news.json')
-    allNews.value = await res.json()
-  } catch (e) {
-    console.error('Failed to load news:', e)
-  } finally {
-    loading.value = false
+export default {
+  components: {
+    PaginationBar
+  },
+  data() {
+    return {
+      allNews: [],
+      searchQuery: '',
+      currentPage: 1,
+      perPage: 6,
+      loading: true,
+      expandedId: null,
+      selectedCategory: 'All'
+    }
+  },
+  computed: {
+    categories() {
+      return ['All', ...new Set(this.allNews.map(n => n.category))]
+    },
+    filtered() {
+      const q = this.searchQuery.toLowerCase().trim()
+      let list = this.allNews
+      if (this.selectedCategory !== 'All') list = list.filter(n => n.category === this.selectedCategory)
+      if (q) list = list.filter(n =>
+        n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q) ||
+        n.category.toLowerCase().includes(q) || n.date.toLowerCase().includes(q)
+      )
+      return list
+    },
+    totalPages() {
+      return Math.ceil(this.filtered.length / this.perPage)
+    },
+    paginated() {
+      const start = (this.currentPage - 1) * this.perPage
+      return this.filtered.slice(start, start + this.perPage)
+    }
+  },
+  methods: {
+    async loadNews() {
+      try {
+        const res = await fetch('/data/news.json')
+        this.allNews = await res.json()
+      } catch (e) {
+        console.error('Failed to load news:', e)
+      } finally {
+        this.loading = false
+      }
+    },
+    onSearch() {
+      this.currentPage = 1
+    },
+    selectCategory(cat) {
+      this.selectedCategory = cat
+      this.currentPage = 1
+    },
+    catBadgeStyle(cat) {
+      const map = {
+        'Electronics': { background:'rgba(79,70,229,0.12)', color:'var(--brand)' },
+        'Fashion':     { background:'rgba(239,68,68,0.12)', color:'var(--brand-danger)' },
+        'Jewellery':   { background:'rgba(245,158,11,0.12)', color:'var(--brand-accent)' },
+        'Promotions':  { background:'rgba(16,185,129,0.12)', color:'var(--brand-success)' },
+        'Technology':  { background:'rgba(59,130,246,0.12)', color:'#3b82f6' },
+        'Company News':{ background:'rgba(107,114,128,0.12)', color:'var(--text-secondary)' }
+      }
+      return map[cat] || { background:'rgba(107,114,128,0.12)', color:'var(--text-secondary)' }
+    }
+  },
+  mounted() {
+    this.loadNews()
+    document.title = 'News | S1zz'
   }
-}
-loadNews()
-
-onMounted(() => {
-  document.title = 'News | S1zz'
-})
-
-const categories = computed(() => ['All', ...new Set(allNews.value.map(n => n.category))])
-const selectedCategory = ref('All')
-
-const filtered = computed(() => {
-  const q = searchQuery.value.toLowerCase().trim()
-  let list = allNews.value
-  if (selectedCategory.value !== 'All') list = list.filter(n => n.category === selectedCategory.value)
-  if (q) list = list.filter(n =>
-    n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q) ||
-    n.category.toLowerCase().includes(q) || n.date.toLowerCase().includes(q)
-  )
-  return list
-})
-
-const totalPages = computed(() => Math.ceil(filtered.value.length / perPage))
-const paginated = computed(() => {
-  const start = (currentPage.value - 1) * perPage
-  return filtered.value.slice(start, start + perPage)
-})
-
-function onSearch() { currentPage.value = 1 }
-function selectCategory(cat) { selectedCategory.value = cat; currentPage.value = 1 }
-
-const catBadgeStyle = (cat) => {
-  const map = {
-    'Electronics': { background:'rgba(79,70,229,0.12)', color:'var(--brand)' },
-    'Fashion':     { background:'rgba(239,68,68,0.12)', color:'var(--brand-danger)' },
-    'Jewellery':   { background:'rgba(245,158,11,0.12)', color:'var(--brand-accent)' },
-    'Promotions':  { background:'rgba(16,185,129,0.12)', color:'var(--brand-success)' },
-    'Technology':  { background:'rgba(59,130,246,0.12)', color:'#3b82f6' },
-    'Company News':{ background:'rgba(107,114,128,0.12)', color:'var(--text-secondary)' }
-  }
-  return map[cat] || { background:'rgba(107,114,128,0.12)', color:'var(--text-secondary)' }
 }
 </script>
 

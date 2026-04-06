@@ -1,25 +1,34 @@
-<script setup>
-import { computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useCartStore } from '../stores/cart.js'
 import { useAuthStore } from '../stores/auth.js'
 
-const cart = useCartStore()
-const auth = useAuthStore()
-
-onMounted(() => {
-  document.title = 'Shopping Cart | S1zz'
-})
-
-function checkout() {
-  if (cart.items.length === 0) return
-  alert('Order placed successfully! Thank you for shopping with S1zz.')
-  cart.clearCart()
+export default {
+  computed: {
+    ...mapStores(useCartStore, useAuthStore),
+    cart() { return this.cartStore; },
+    auth() { return this.authStore; },
+    subtotal() {
+      return this.cart.totalPrice
+    },
+    tax() {
+      return this.subtotal * 0.1
+    },
+    total() {
+      return this.subtotal + this.tax
+    }
+  },
+  methods: {
+    checkout() {
+      if (this.cart.items.length === 0) return
+      alert('Order placed successfully! Thank you for shopping with S1zz.')
+      this.cart.clearCart()
+    }
+  },
+  mounted() {
+    document.title = 'Shopping Cart | S1zz'
+  }
 }
-
-const subtotal = computed(() => cart.totalPrice)
-const tax = computed(() => subtotal.value * 0.1)
-const total = computed(() => subtotal.value + tax.value)
 </script>
 
 <template>

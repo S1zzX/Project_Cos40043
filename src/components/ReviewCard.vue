@@ -1,6 +1,17 @@
-<script setup>
-defineProps({ review: { type: Object, required: true } })
-function stars(r) { return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r)) }
+<script>
+export default {
+  props: {
+    review: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    stars(r) {
+      return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r))
+    }
+  }
+}
 </script>
 
 <template>

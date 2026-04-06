@@ -1,83 +1,89 @@
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 import { useProductsStore } from '../stores/products.js'
 
-const auth = useAuthStore()
-const productStore = useProductsStore()
-
-const customProducts = ref([])
-const showForm = ref(false)
-const editingId = ref(null)
-const successMsg = ref('')
-
-const emptyForm = () => ({ title: '', price: '', category: '', description: '', image: '' })
-const form = reactive(emptyForm())
-const errors = reactive({ title: '', price: '', category: '', description: '' })
-
-onMounted(() => {
-  customProducts.value = productStore.getCustomProducts()
-})
-
-function validate() {
-  let valid = true
-  errors.title = form.title.trim() ? '' : 'Title is required.'
-  errors.price = (!form.price || isNaN(form.price) || form.price <= 0) ? 'Enter a valid price.' : ''
-  errors.category = form.category.trim() ? '' : 'Category is required.'
-  errors.description = form.description.trim() ? '' : 'Description is required.'
-  return !Object.values(errors).some(e => e)
-}
-
-function startCreate() {
-  Object.assign(form, emptyForm())
-  editingId.value = null
-  showForm.value = true
-}
-
-function startEdit(product) {
-  Object.assign(form, {
-    title: product.title,
-    price: product.price,
-    category: product.category,
-    description: product.description,
-    image: product.image || ''
-  })
-  editingId.value = product.id
-  showForm.value = true
-}
-
-function saveProduct() {
-  if (!validate()) return
-  const data = {
-    title: form.title.trim(),
-    price: parseFloat(form.price),
-    category: form.category.trim(),
-    description: form.description.trim(),
-    image: form.image.trim() || 'https://via.placeholder.com/300x300?text=S1zz'
+export default {
+  data() {
+    return {
+      customProducts: [],
+      showForm: false,
+      editingId: null,
+      successMsg: '',
+      form: { title: '', price: '', category: '', description: '', image: '' },
+      errors: { title: '', price: '', category: '', description: '' }
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore, useProductsStore),
+    auth() { return this.authStore; },
+    productStore() { return this.productsStore; },
+    categories() {
+      return this.productStore.categories.length ? this.productStore.categories : ['electronics', "men's clothing", "women's clothing", 'jewelery']
+    }
+  },
+  methods: {
+    emptyForm() {
+      return { title: '', price: '', category: '', description: '', image: '' }
+    },
+    validate() {
+      let valid = true
+      this.errors.title = this.form.title.trim() ? '' : 'Title is required.'
+      this.errors.price = (!this.form.price || isNaN(this.form.price) || this.form.price <= 0) ? 'Enter a valid price.' : ''
+      this.errors.category = this.form.category.trim() ? '' : 'Category is required.'
+      this.errors.description = this.form.description.trim() ? '' : 'Description is required.'
+      return !Object.values(this.errors).some(e => e)
+    },
+    startCreate() {
+      Object.assign(this.form, this.emptyForm())
+      this.editingId = null
+      this.showForm = true
+    },
+    startEdit(product) {
+      Object.assign(this.form, {
+        title: product.title,
+        price: product.price,
+        category: product.category,
+        description: product.description,
+        image: product.image || ''
+      })
+      this.editingId = product.id
+      this.showForm = true
+    },
+    saveProduct() {
+      if (!this.validate()) return
+      const data = {
+        title: this.form.title.trim(),
+        price: parseFloat(this.form.price),
+        category: this.form.category.trim(),
+        description: this.form.description.trim(),
+        image: this.form.image.trim() || 'https://via.placeholder.com/300x300?text=S1zz'
+      }
+      if (this.editingId) {
+        this.productStore.updateProduct(this.editingId, data)
+        this.successMsg = 'Product updated successfully!'
+      } else {
+        this.productStore.createProduct(data)
+        this.successMsg = 'Product created successfully!'
+      }
+      this.customProducts = this.productStore.getCustomProducts()
+      this.showForm = false
+      this.editingId = null
+      setTimeout(() => this.successMsg = '', 3000)
+    },
+    deleteProduct(id) {
+      if (confirm('Are you sure you want to delete this product?')) {
+        this.productStore.deleteProduct(id)
+        this.customProducts = this.productStore.getCustomProducts()
+        this.successMsg = 'Product deleted.'
+        setTimeout(() => this.successMsg = '', 3000)
+      }
+    }
+  },
+  mounted() {
+    this.customProducts = this.productStore.getCustomProducts()
   }
-  if (editingId.value) {
-    productStore.updateProduct(editingId.value, data)
-    successMsg.value = 'Product updated successfully!'
-  } else {
-    productStore.createProduct(data)
-    successMsg.value = 'Product created successfully!'
-  }
-  customProducts.value = productStore.getCustomProducts()
-  showForm.value = false
-  editingId.value = null
-  setTimeout(() => successMsg.value = '', 3000)
 }
-
-function deleteProduct(id) {
-  if (confirm('Are you sure you want to delete this product?')) {
-    productStore.deleteProduct(id)
-    customProducts.value = productStore.getCustomProducts()
-    successMsg.value = 'Product deleted.'
-    setTimeout(() => successMsg.value = '', 3000)
-  }
-}
-
-const categories = computed(() => productStore.categories.length ? productStore.categories : ['electronics', "men's clothing", "women's clothing", 'jewelery'])
 </script>
 
 <template>

@@ -1,58 +1,77 @@
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+<script>
+import { mapStores } from 'pinia'
 import { useProductsStore } from '../stores/products.js'
 import ProductCard from '../components/ProductCard.vue'
 import PaginationBar from '../components/PaginationBar.vue'
 
-const store = useProductsStore()
-const searchQuery = ref('')
-const selectedCategory = ref('all')
-const maxPrice = ref(1000)
-const sortBy = ref('default')
-const currentPage = ref(1)
-const perPage = 12
+export default {
+  components: {
+    ProductCard,
+    PaginationBar
+  },
+  data() {
+    return {
+      searchQuery: '',
+      selectedCategory: 'all',
+      maxPrice: 1000,
+      sortBy: 'default',
+      currentPage: 1,
+      perPage: 12
+    }
+  },
+  computed: {
+    ...mapStores(useProductsStore),
+    store() {
+      return this.productsStore
+    },
+    filtered() {
+      let list = [...this.store.products]
 
-onMounted(() => {
-  document.title = 'Shop All Products | S1zz'
-  if (store.products.length === 0) store.fetchProducts()
-})
+      if (this.searchQuery.trim()) {
+        const q = this.searchQuery.toLowerCase()
+        list = list.filter(p =>
+          p.title.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q)
+        )
+      }
+      if (this.selectedCategory !== 'all') {
+        list = list.filter(p => p.category === this.selectedCategory)
+      }
+      list = list.filter(p => p.price <= this.maxPrice)
 
-const filtered = computed(() => {
-  let list = [...store.products]
+      if (this.sortBy === 'price-asc') list.sort((a, b) => a.price - b.price)
+      else if (this.sortBy === 'price-desc') list.sort((a, b) => b.price - a.price)
+      else if (this.sortBy === 'rating') list.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0))
 
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase()
-    list = list.filter(p =>
-      p.title.toLowerCase().includes(q) ||
-      p.description?.toLowerCase().includes(q) ||
-      p.category?.toLowerCase().includes(q)
-    )
+      return list
+    },
+    totalPages() {
+      return Math.ceil(this.filtered.length / this.perPage)
+    },
+    paginated() {
+      const start = (this.currentPage - 1) * this.perPage
+      return this.filtered.slice(start, start + this.perPage)
+    }
+  },
+  watch: {
+    searchQuery() { this.currentPage = 1 },
+    selectedCategory() { this.currentPage = 1 },
+    maxPrice() { this.currentPage = 1 },
+    sortBy() { this.currentPage = 1 }
+  },
+  methods: {
+    resetFilters() {
+      this.searchQuery = ''
+      this.selectedCategory = 'all'
+      this.maxPrice = 1000
+      this.sortBy = 'default'
+    }
+  },
+  mounted() {
+    document.title = 'Shop All Products | S1zz'
+    if (this.store.products.length === 0) this.store.fetchProducts()
   }
-  if (selectedCategory.value !== 'all') {
-    list = list.filter(p => p.category === selectedCategory.value)
-  }
-  list = list.filter(p => p.price <= maxPrice.value)
-
-  if (sortBy.value === 'price-asc') list.sort((a, b) => a.price - b.price)
-  else if (sortBy.value === 'price-desc') list.sort((a, b) => b.price - a.price)
-  else if (sortBy.value === 'rating') list.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0))
-
-  return list
-})
-
-const totalPages = computed(() => Math.ceil(filtered.value.length / perPage))
-const paginated = computed(() => {
-  const start = (currentPage.value - 1) * perPage
-  return filtered.value.slice(start, start + perPage)
-})
-
-watch([searchQuery, selectedCategory, maxPrice, sortBy], () => { currentPage.value = 1 })
-
-function resetFilters() {
-  searchQuery.value = ''
-  selectedCategory.value = 'all'
-  maxPrice.value = 1000
-  sortBy.value = 'default'
 }
 </script>
 

@@ -1,113 +1,103 @@
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 
-const auth = useAuthStore()
+export default {
+  data() {
+    return {
+      form: { firstName: '', lastName: '', email: '' },
+      passwordForm: { currentPassword: '', newPassword: '', confirmPassword: '' },
+      errors: { firstName: '', lastName: '' },
+      pwErrors: { currentPassword: '', newPassword: '', confirmPassword: '' },
+      saveSuccess: false,
+      pwSuccess: false,
+      pwError: '',
+      saving: false,
+      savingPw: false
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore),
+    auth() { return this.authStore; },
+    initials() {
+      const f = this.form.firstName?.[0] || ''
+      const l = this.form.lastName?.[0] || ''
+      return (f + l).toUpperCase() || '?'
+    },
+    joinDate() {
+      if (!this.auth.currentUser?.id) return ''
+      const id = this.auth.currentUser.id
+      if (id === 1 || id === 2) return 'March 2026'
+      return new Date(id).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
+    }
+  },
+  methods: {
+    validateProfile() {
+      this.errors.firstName = this.form.firstName.trim() ? '' : 'First name is required.'
+      this.errors.lastName = this.form.lastName.trim() ? '' : 'Last name is required.'
+      return !this.errors.firstName && !this.errors.lastName
+    },
+    validatePassword() {
+      this.pwErrors.currentPassword = this.passwordForm.currentPassword ? '' : 'Current password is required.'
+      this.pwErrors.newPassword = this.passwordForm.newPassword.length >= 8 ? '' : 'Min. 8 characters.'
+      this.pwErrors.confirmPassword = this.passwordForm.newPassword === this.passwordForm.confirmPassword ? '' : 'Passwords do not match.'
+      return !this.pwErrors.currentPassword && !this.pwErrors.newPassword && !this.pwErrors.confirmPassword
+    },
+    async saveProfile() {
+      if (!this.validateProfile()) return
+      this.saving = true
+      await new Promise(r => setTimeout(r, 300))
 
-const form = reactive({
-  firstName: '',
-  lastName: '',
-  email: ''
-})
+      const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
+      const idx = users.findIndex(u => u.id === this.auth.currentUser.id)
+      if (idx !== -1) {
+        users[idx].firstName = this.form.firstName.trim()
+        users[idx].lastName = this.form.lastName.trim()
+        localStorage.setItem('s1zz_users', JSON.stringify(users))
+      }
 
-const passwordForm = reactive({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
+      const updated = { ...this.auth.currentUser, firstName: this.form.firstName.trim(), lastName: this.form.lastName.trim() }
+      this.auth.currentUser.firstName = this.form.firstName.trim()
+      this.auth.currentUser.lastName = this.form.lastName.trim()
+      localStorage.setItem('s1zz_auth', JSON.stringify(updated))
 
-const errors = reactive({ firstName: '', lastName: '' })
-const pwErrors = reactive({ currentPassword: '', newPassword: '', confirmPassword: '' })
-const saveSuccess = ref(false)
-const pwSuccess = ref(false)
-const pwError = ref('')
-const saving = ref(false)
-const savingPw = ref(false)
+      this.saving = false
+      this.saveSuccess = true
+      setTimeout(() => this.saveSuccess = false, 3000)
+    },
+    async changePassword() {
+      this.pwError = ''
+      if (!this.validatePassword()) return
+      this.savingPw = true
+      await new Promise(r => setTimeout(r, 300))
 
-onMounted(() => {
-  document.title = 'My Profile | S1zz'
-  if (auth.currentUser) {
-    form.firstName = auth.currentUser.firstName || ''
-    form.lastName = auth.currentUser.lastName || ''
-    form.email = auth.currentUser.email || ''
+      const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
+      const idx = users.findIndex(u => u.id === this.auth.currentUser.id)
+      if (idx === -1 || users[idx].password !== this.passwordForm.currentPassword) {
+        this.pwError = 'Current password is incorrect.'
+        this.savingPw = false
+        return
+      }
+      users[idx].password = this.passwordForm.newPassword
+      localStorage.setItem('s1zz_users', JSON.stringify(users))
+
+      this.passwordForm.currentPassword = ''
+      this.passwordForm.newPassword = ''
+      this.passwordForm.confirmPassword = ''
+      this.savingPw = false
+      this.pwSuccess = true
+      setTimeout(() => this.pwSuccess = false, 3000)
+    }
+  },
+  mounted() {
+    document.title = 'My Profile | S1zz'
+    if (this.auth.currentUser) {
+      this.form.firstName = this.auth.currentUser.firstName || ''
+      this.form.lastName = this.auth.currentUser.lastName || ''
+      this.form.email = this.auth.currentUser.email || ''
+    }
   }
-})
-
-const initials = computed(() => {
-  const f = form.firstName?.[0] || ''
-  const l = form.lastName?.[0] || ''
-  return (f + l).toUpperCase() || '?'
-})
-
-function validateProfile() {
-  errors.firstName = form.firstName.trim() ? '' : 'First name is required.'
-  errors.lastName = form.lastName.trim() ? '' : 'Last name is required.'
-  return !errors.firstName && !errors.lastName
 }
-
-function validatePassword() {
-  pwErrors.currentPassword = passwordForm.currentPassword ? '' : 'Current password is required.'
-  pwErrors.newPassword = passwordForm.newPassword.length >= 8 ? '' : 'Min. 8 characters.'
-  pwErrors.confirmPassword = passwordForm.newPassword === passwordForm.confirmPassword ? '' : 'Passwords do not match.'
-  return !pwErrors.currentPassword && !pwErrors.newPassword && !pwErrors.confirmPassword
-}
-
-async function saveProfile() {
-  if (!validateProfile()) return
-  saving.value = true
-  await new Promise(r => setTimeout(r, 300))
-
-  // Update in users list
-  const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
-  const idx = users.findIndex(u => u.id === auth.currentUser.id)
-  if (idx !== -1) {
-    users[idx].firstName = form.firstName.trim()
-    users[idx].lastName = form.lastName.trim()
-    localStorage.setItem('s1zz_users', JSON.stringify(users))
-  }
-
-  // Update currentUser in auth store + storage
-  const updated = { ...auth.currentUser, firstName: form.firstName.trim(), lastName: form.lastName.trim() }
-  auth.currentUser.firstName = form.firstName.trim()
-  auth.currentUser.lastName = form.lastName.trim()
-  localStorage.setItem('s1zz_auth', JSON.stringify(updated))
-
-  saving.value = false
-  saveSuccess.value = true
-  setTimeout(() => saveSuccess.value = false, 3000)
-}
-
-async function changePassword() {
-  pwError.value = ''
-  if (!validatePassword()) return
-  savingPw.value = true
-  await new Promise(r => setTimeout(r, 300))
-
-  const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
-  const idx = users.findIndex(u => u.id === auth.currentUser.id)
-  if (idx === -1 || users[idx].password !== passwordForm.currentPassword) {
-    pwError.value = 'Current password is incorrect.'
-    savingPw.value = false
-    return
-  }
-  users[idx].password = passwordForm.newPassword
-  localStorage.setItem('s1zz_users', JSON.stringify(users))
-
-  passwordForm.currentPassword = ''
-  passwordForm.newPassword = ''
-  passwordForm.confirmPassword = ''
-  savingPw.value = false
-  pwSuccess.value = true
-  setTimeout(() => pwSuccess.value = false, 3000)
-}
-
-const joinDate = computed(() => {
-  if (!auth.currentUser?.id) return ''
-  // use a fixed date for seed users, epoch ms for registered ones
-  const id = auth.currentUser.id
-  if (id === 1 || id === 2) return 'March 2026'
-  return new Date(id).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
-})
 </script>
 
 <template>

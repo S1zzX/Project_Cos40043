@@ -1,23 +1,31 @@
-<script setup>
-const props = defineProps({
-  currentPage: { type: Number, required: true },
-  totalPages: { type: Number, required: true }
-})
-const emit = defineEmits(['page-change'])
-
-function goToPage(page) {
-  if (page >= 1 && page <= props.totalPages) {
-    emit('page-change', page)
+<script>
+export default {
+  props: {
+    currentPage: {
+      type: Number,
+      required: true
+    },
+    totalPages: {
+      type: Number,
+      required: true
+    }
+  },
+  emits: ['page-change'],
+  methods: {
+    goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.$emit('page-change', page)
+      }
+    },
+    pages() {
+      const range = []
+      const delta = 2
+      for (let i = Math.max(1, this.currentPage - delta); i <= Math.min(this.totalPages, this.currentPage + delta); i++) {
+        range.push(i)
+      }
+      return range
+    }
   }
-}
-
-function pages() {
-  const range = []
-  const delta = 2
-  for (let i = Math.max(1, props.currentPage - delta); i <= Math.min(props.totalPages, props.currentPage + delta); i++) {
-    range.push(i)
-  }
-  return range
 }
 </script>
 

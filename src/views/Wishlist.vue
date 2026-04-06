@@ -1,11 +1,19 @@
-<script setup>
-import { RouterLink } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useWishlistStore } from '../stores/wishlist.js'
 import { useCartStore } from '../stores/cart.js'
 import ProductCard from '../components/ProductCard.vue'
 
-const wishlist = useWishlistStore()
-const cart = useCartStore()
+export default {
+  components: {
+    ProductCard
+  },
+  computed: {
+    ...mapStores(useWishlistStore, useCartStore),
+    wishlist() { return this.wishlistStore; },
+    cart() { return this.cartStore; }
+  }
+}
 </script>
 
 <template>

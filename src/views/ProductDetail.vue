@@ -1,107 +1,118 @@
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 import { useCartStore } from '../stores/cart.js'
 import { useWishlistStore } from '../stores/wishlist.js'
 import { useProductsStore } from '../stores/products.js'
 import ReviewCard from '../components/ReviewCard.vue'
 
-const route = useRoute()
-const router = useRouter()
-const auth = useAuthStore()
-const cart = useCartStore()
-const wishlist = useWishlistStore()
-const productStore = useProductsStore()
+export default {
+  components: {
+    ReviewCard
+  },
+  data() {
+    return {
+      product: null,
+      loading: true,
+      reviews: [],
+      qty: 1,
+      addedToCart: false,
+      reviewForm: { rating: 5, comment: '' },
+      reviewError: '',
+      reviewSuccess: false,
+      isEditMode: false,
+      editingProduct: {}
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore, useCartStore, useWishlistStore, useProductsStore),
+    auth() { return this.authStore; },
+    cart() { return this.cartStore; },
+    wishlist() { return this.wishlistStore; },
+    productStore() { return this.productsStore; },
 
-const product = ref(null)
-const loading = ref(true)
-const reviews = ref([])
-const qty = ref(1)
-const addedToCart = ref(false)
-
-// Review form
-const reviewForm = ref({ rating: 5, comment: '' })
-const reviewError = ref('')
-const reviewSuccess = ref(false)
-const isEditMode = ref(false)
-const editingProduct = ref({})
-
-const isWishlisted = computed(() => product.value && wishlist.isInWishlist(product.value.id))
-const likeCount = computed(() => product.value ? productStore.getLikeCount(product.value.id) : 0)
-const isLiked = computed(() => product.value && auth.isLoggedIn && productStore.isLikedByUser(product.value.id, auth.currentUser?.id))
-
-const stars = (n) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n))
-const avgRating = computed(() => {
-  if (!reviews.value.length) return product.value?.rating?.rate || 0
-  return reviews.value.reduce((s, r) => s + r.rating, 0) / reviews.value.length
-})
-
-async function loadProduct() {
-  loading.value = true
-  const id = isNaN(route.params.id) ? route.params.id : Number(route.params.id)
-  product.value = await productStore.fetchProductById(id)
-  reviews.value = productStore.getProductReviews(id)
-  loading.value = false
-  if (product.value) {
-    editingProduct.value = { ...product.value }
-    document.title = `${product.value.title} | S1zz`
-  }
-}
-
-onMounted(loadProduct)
-watch(() => route.params.id, loadProduct)
-
-function addToCart() {
-  cart.addToCart(product.value, qty.value)
-  addedToCart.value = true
-  setTimeout(() => addedToCart.value = false, 2000)
-}
-
-function toggleLike() {
-  if (!auth.isLoggedIn) { router.push('/login'); return }
-  productStore.toggleLike(product.value.id, auth.currentUser.id)
-}
-
-function toggleWishlist() {
-  if (!auth.isLoggedIn) { router.push('/login'); return }
-  wishlist.toggleWishlist(product.value)
-}
-
-function submitReview() {
-  reviewError.value = ''
-  if (!reviewForm.value.comment.trim()) {
-    reviewError.value = 'Please enter a review comment.'
-    return
-  }
-  productStore.addReview({
-    productId: product.value.id,
-    userId: auth.currentUser.id,
-    username: auth.userName,
-    rating: reviewForm.value.rating,
-    comment: reviewForm.value.comment
-  })
-  reviews.value = productStore.getProductReviews(product.value.id)
-  reviewForm.value = { rating: 5, comment: '' }
-  reviewSuccess.value = true
-  setTimeout(() => reviewSuccess.value = false, 3000)
-}
-
-function deleteReview(reviewId) {
-  productStore.deleteReview(reviewId)
-  reviews.value = productStore.getProductReviews(product.value.id)
-}
-
-function saveEdit() {
-  productStore.updateProduct(product.value.id, editingProduct.value)
-  product.value = { ...editingProduct.value }
-  isEditMode.value = false
-}
-
-function deleteProduct() {
-  if (confirm('Delete this product? This cannot be undone.')) {
-    productStore.deleteProduct(product.value.id)
-    router.push('/products')
+    isWishlisted() {
+      return this.product && this.wishlist.isInWishlist(this.product.id)
+    },
+    likeCount() {
+      return this.product ? this.productStore.getLikeCount(this.product.id) : 0
+    },
+    isLiked() {
+      return this.product && this.auth.isLoggedIn && this.productStore.isLikedByUser(this.product.id, this.auth.currentUser?.id)
+    },
+    avgRating() {
+      if (!this.reviews.length) return this.product?.rating?.rate || 0
+      return this.reviews.reduce((s, r) => s + r.rating, 0) / this.reviews.length
+    }
+  },
+  watch: {
+    '$route.params.id': 'loadProduct'
+  },
+  methods: {
+    stars(n) {
+      return '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n))
+    },
+    async loadProduct() {
+      this.loading = true
+      const pId = this.$route.params.id
+      const id = isNaN(pId) ? pId : Number(pId)
+      this.product = await this.productStore.fetchProductById(id)
+      this.reviews = this.productStore.getProductReviews(id)
+      this.loading = false
+      if (this.product) {
+        this.editingProduct = { ...this.product }
+        document.title = `${this.product.title} | S1zz`
+      }
+    },
+    addToCart() {
+      this.cart.addToCart(this.product, this.qty)
+      this.addedToCart = true
+      setTimeout(() => this.addedToCart = false, 2000)
+    },
+    toggleLike() {
+      if (!this.auth.isLoggedIn) { this.$router.push('/login'); return }
+      this.productStore.toggleLike(this.product.id, this.auth.currentUser.id)
+    },
+    toggleWishlist() {
+      if (!this.auth.isLoggedIn) { this.$router.push('/login'); return }
+      this.wishlist.toggleWishlist(this.product)
+    },
+    submitReview() {
+      this.reviewError = ''
+      if (!this.reviewForm.comment.trim()) {
+        this.reviewError = 'Please enter a review comment.'
+        return
+      }
+      this.productStore.addReview({
+        productId: this.product.id,
+        userId: this.auth.currentUser.id,
+        username: this.auth.userName,
+        rating: this.reviewForm.rating,
+        comment: this.reviewForm.comment
+      })
+      this.reviews = this.productStore.getProductReviews(this.product.id)
+      this.reviewForm = { rating: 5, comment: '' }
+      this.reviewSuccess = true
+      setTimeout(() => this.reviewSuccess = false, 3000)
+    },
+    deleteReview(reviewId) {
+      this.productStore.deleteReview(reviewId)
+      this.reviews = this.productStore.getProductReviews(this.product.id)
+    },
+    saveEdit() {
+      this.productStore.updateProduct(this.product.id, this.editingProduct)
+      this.product = { ...this.editingProduct }
+      this.isEditMode = false
+    },
+    deleteProduct() {
+      if (confirm('Delete this product? This cannot be undone.')) {
+        this.productStore.deleteProduct(this.product.id)
+        this.$router.push('/products')
+      }
+    }
+  },
+  mounted() {
+    this.loadProduct()
   }
 }
 </script>
@@ -110,7 +121,7 @@ function deleteProduct() {
   <div class="page-section">
     <div class="container">
       <!-- Back button -->
-      <button class="btn btn-outline-secondary btn-sm mb-4" @click="router.back()">
+      <button class="btn btn-outline-secondary btn-sm mb-4" @click="$router.back()">
         <i class="bi bi-arrow-left me-1"></i>Back
       </button>
 

@@ -1,41 +1,54 @@
-<script setup>
-import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 import { useCartStore } from '../stores/cart.js'
 import { useWishlistStore } from '../stores/wishlist.js'
 import { useProductsStore } from '../stores/products.js'
 
-const props = defineProps({ product: { type: Object, required: true } })
+export default {
+  props: {
+    product: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    ...mapStores(useAuthStore, useCartStore, useWishlistStore, useProductsStore),
+    auth() { return this.authStore; },
+    cart() { return this.cartStore; },
+    wishlist() { return this.wishlistStore; },
+    productStore() { return this.productsStore; }, // maps to useProductsStore
 
-const auth = useAuthStore()
-const cart = useCartStore()
-const wishlist = useWishlistStore()
-const productStore = useProductsStore()
-
-const isWishlisted = computed(() => wishlist.isInWishlist(props.product.id))
-const likeCount = computed(() => productStore.getLikeCount(props.product.id))
-const isLiked = computed(() => auth.isLoggedIn && productStore.isLikedByUser(props.product.id, auth.currentUser?.id))
-
-const stars = computed(() => {
-  const r = Math.round(props.product.rating?.rate || 0)
-  return '★'.repeat(r) + '☆'.repeat(5 - r)
-})
-
-const shortTitle = computed(() =>
-  props.product.title.length > 52 ? props.product.title.slice(0, 52) + '…' : props.product.title
-)
-
-function handleCart() { cart.addToCart(props.product) }
-
-function handleWishlist() {
-  if (!auth.isLoggedIn) return
-  wishlist.toggleWishlist(props.product)
-}
-
-function handleLike() {
-  if (!auth.isLoggedIn) return
-  productStore.toggleLike(props.product.id, auth.currentUser.id)
+    isWishlisted() {
+      return this.wishlist.isInWishlist(this.product.id)
+    },
+    likeCount() {
+      return this.productStore.getLikeCount(this.product.id)
+    },
+    isLiked() {
+      return this.auth.isLoggedIn && this.productStore.isLikedByUser(this.product.id, this.auth.currentUser?.id)
+    },
+    stars() {
+      const r = Math.round(this.product.rating?.rate || 0)
+      return '★'.repeat(r) + '☆'.repeat(5 - r)
+    },
+    shortTitle() {
+      return this.product.title.length > 52 ? this.product.title.slice(0, 52) + '…' : this.product.title
+    }
+  },
+  methods: {
+    handleCart() {
+      this.cart.addToCart(this.product)
+    },
+    handleWishlist() {
+      if (!this.auth.isLoggedIn) return
+      this.wishlist.toggleWishlist(this.product)
+    },
+    handleLike() {
+      if (!this.auth.isLoggedIn) return
+      this.productStore.toggleLike(this.product.id, this.auth.currentUser.id)
+    }
+  }
 }
 </script>
 

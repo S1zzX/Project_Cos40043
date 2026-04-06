@@ -1,33 +1,35 @@
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-
-onMounted(() => {
-  document.title = 'About | S1zz'
-})
-
-const firstName = ref('')
-const lastName = ref('')
-const selectedScene = ref('mountain')
-
-const nameError = computed(() => {
-  const nameRegex = /^[a-zA-Z\s'-]*$/
-  if (firstName.value && !nameRegex.test(firstName.value)) return 'First name should only contain letters.'
-  if (lastName.value && !nameRegex.test(lastName.value)) return 'Last name should only contain letters.'
-  return ''
-})
-
-const welcomeMessage = computed(() => {
-  const fn = firstName.value.trim()
-  const ln = lastName.value.trim()
-  if (!nameError.value && (fn || ln)) return `Welcome to S1zz, ${fn} ${ln}! 👋`
-  return ''
-})
-
-const sceneImage = computed(() =>
-  selectedScene.value === 'mountain'
-    ? 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
-    : 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80'
-)
+<script>
+export default {
+  data() {
+    return {
+      firstName: '',
+      lastName: '',
+      selectedScene: 'mountain'
+    }
+  },
+  computed: {
+    nameError() {
+      const nameRegex = /^[a-zA-Z\s'-]*$/
+      if (this.firstName && !nameRegex.test(this.firstName)) return 'First name should only contain letters.'
+      if (this.lastName && !nameRegex.test(this.lastName)) return 'Last name should only contain letters.'
+      return ''
+    },
+    welcomeMessage() {
+      const fn = this.firstName.trim()
+      const ln = this.lastName.trim()
+      if (!this.nameError && (fn || ln)) return `Welcome to S1zz, ${fn} ${ln}! 👋`
+      return ''
+    },
+    sceneImage() {
+      return this.selectedScene === 'mountain'
+        ? 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
+        : 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&q=80'
+    }
+  },
+  mounted() {
+    document.title = 'About | S1zz'
+  }
+}
 </script>
 
 <template>

@@ -1,17 +1,22 @@
-<script setup>
-import { RouterLink, useRouter } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 import { useCartStore } from '../stores/cart.js'
 import { useThemeStore } from '../stores/theme.js'
 
-const auth = useAuthStore()
-const cart = useCartStore()
-const theme = useThemeStore()
-const router = useRouter()
-
-function logout() {
-  auth.logout()
-  router.push('/')
+export default {
+  computed: {
+    ...mapStores(useAuthStore, useCartStore, useThemeStore),
+    auth() { return this.authStore; },
+    cart() { return this.cartStore; },
+    theme() { return this.themeStore; }
+  },
+  methods: {
+    logout() {
+      this.auth.logout()
+      this.$router.push('/')
+    }
+  }
 }
 </script>
 

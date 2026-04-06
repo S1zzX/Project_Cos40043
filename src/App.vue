@@ -1,14 +1,21 @@
-<script setup>
-import { onMounted } from 'vue'
+<script>
+import { mapStores } from 'pinia'
 import { useThemeStore } from './stores/theme.js'
 import Navbar from './components/Navbar.vue'
 import FooterBar from './components/FooterBar.vue'
 
-// Initialise theme on app start
-const themeStore = useThemeStore()
-onMounted(() => {
-  document.documentElement.setAttribute('data-theme', themeStore.theme)
-})
+export default {
+  components: {
+    Navbar,
+    FooterBar
+  },
+  computed: {
+    ...mapStores(useThemeStore)
+  },
+  mounted() {
+    document.documentElement.setAttribute('data-theme', this.themeStore.theme)
+  }
+}
 </script>
 
 <template>

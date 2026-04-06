@@ -1,22 +1,29 @@
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+<script>
+import { mapStores } from 'pinia'
 import { useAuthStore } from '../stores/auth.js'
 import { useProductsStore } from '../stores/products.js'
 import ProductCard from '../components/ProductCard.vue'
 
-const auth = useAuthStore()
-const productStore = useProductsStore()
-
-onMounted(async () => {
-  document.title = 'Home | S1zz'
-  await auth.initUsers()
-  if (productStore.products.length === 0) {
-    await productStore.fetchProducts()
+export default {
+  components: {
+    ProductCard
+  },
+  computed: {
+    ...mapStores(useAuthStore, useProductsStore),
+    auth() { return this.authStore; },
+    productStore() { return this.productsStore; },
+    featured() {
+      return this.productStore.products.slice(0, 4)
+    }
+  },
+  async mounted() {
+    document.title = 'Home | S1zz'
+    await this.auth.initUsers()
+    if (this.productStore.products.length === 0) {
+      await this.productStore.fetchProducts()
+    }
   }
-})
-
-const featured = computed(() => productStore.products.slice(0, 4))
+}
 </script>
 
 <template>
