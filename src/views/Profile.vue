@@ -48,22 +48,16 @@ export default {
       this.saving = true
       await new Promise(r => setTimeout(r, 300))
 
-      const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
-      const idx = users.findIndex(u => u.id === this.auth.currentUser.id)
-      if (idx !== -1) {
-        users[idx].firstName = this.form.firstName.trim()
-        users[idx].lastName = this.form.lastName.trim()
-        localStorage.setItem('s1zz_users', JSON.stringify(users))
-      }
-
-      const updated = { ...this.auth.currentUser, firstName: this.form.firstName.trim(), lastName: this.form.lastName.trim() }
-      this.auth.currentUser.firstName = this.form.firstName.trim()
-      this.auth.currentUser.lastName = this.form.lastName.trim()
-      localStorage.setItem('s1zz_auth', JSON.stringify(updated))
+      const res = await this.auth.updateProfile({
+        firstName: this.form.firstName.trim(),
+        lastName: this.form.lastName.trim()
+      })
 
       this.saving = false
-      this.saveSuccess = true
-      setTimeout(() => this.saveSuccess = false, 3000)
+      if (res.success) {
+        this.saveSuccess = true
+        setTimeout(() => this.saveSuccess = false, 3000)
+      }
     },
     async changePassword() {
       this.pwError = ''
@@ -71,22 +65,21 @@ export default {
       this.savingPw = true
       await new Promise(r => setTimeout(r, 300))
 
-      const users = JSON.parse(localStorage.getItem('s1zz_users') || '[]')
-      const idx = users.findIndex(u => u.id === this.auth.currentUser.id)
-      if (idx === -1 || users[idx].password !== this.passwordForm.currentPassword) {
-        this.pwError = 'Current password is incorrect.'
-        this.savingPw = false
-        return
-      }
-      users[idx].password = this.passwordForm.newPassword
-      localStorage.setItem('s1zz_users', JSON.stringify(users))
+      const res = await this.auth.changePassword({
+        currentPassword: this.passwordForm.currentPassword,
+        newPassword: this.passwordForm.newPassword
+      })
 
-      this.passwordForm.currentPassword = ''
-      this.passwordForm.newPassword = ''
-      this.passwordForm.confirmPassword = ''
       this.savingPw = false
-      this.pwSuccess = true
-      setTimeout(() => this.pwSuccess = false, 3000)
+      if (res.success) {
+        this.passwordForm.currentPassword = ''
+        this.passwordForm.newPassword = ''
+        this.passwordForm.confirmPassword = ''
+        this.pwSuccess = true
+        setTimeout(() => this.pwSuccess = false, 3000)
+      } else {
+        this.pwError = res.error
+      }
     }
   },
   mounted() {
