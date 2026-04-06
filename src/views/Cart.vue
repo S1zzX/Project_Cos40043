@@ -35,8 +35,8 @@ export default {
       <h1 class="fw-bold mb-4"><i class="bi bi-cart3 me-2 text-brand"></i>Shopping Cart</h1>
 
       <div v-if="cartStore.items.length === 0" class="text-center py-5">
-        <i class="bi bi-cartStore-x" style="font-size:4rem;color:var(--text-muted)"></i>
-        <h4 class="mt-3 fw-bold">Your cartStore is empty</h4>
+        <i class="bi bi-cart-x" style="font-size:4rem;color:var(--text-muted)"></i>
+        <h4 class="mt-3 fw-bold">Your cart is empty</h4>
         <p class="text-muted-custom">Add some products to get started!</p>
         <RouterLink to="/products" class="btn btn-primary mt-2">
           <i class="bi bi-grid me-2"></i>Browse Products
@@ -50,7 +50,7 @@ export default {
             <div
               v-for="item in cartStore.items"
               :key="item.id"
-              class="cartStore-item d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
+              class="cart-item d-flex align-items-center gap-3 p-3 mb-2 rounded-3"
             >
               <img :src="item.image" :alt="item.title" style="width:70px;height:70px;object-fit:contain;background:rgba(255,255,255,0.05);border-radius:8px;padding:4px;flex-shrink:0;" />
               <div class="flex-grow-1 min-w-0">

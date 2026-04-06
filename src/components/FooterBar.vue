@@ -15,8 +15,8 @@
           <p class="fw-bold small mb-3" style="color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;font-size:0.72rem;">Shop</p>
           <ul class="list-unstyled">
             <li class="mb-2"><RouterLink to="/products" class="footer-link">All Products</RouterLink></li>
-            <li class="mb-2"><RouterLink to="/wishlistStore" class="footer-link">Wishlist</RouterLink></li>
-            <li class="mb-2"><RouterLink to="/cartStore" class="footer-link">Cart</RouterLink></li>
+            <li class="mb-2"><RouterLink to="/wishlist" class="footer-link">Wishlist</RouterLink></li>
+            <li class="mb-2"><RouterLink to="/cart" class="footer-link">Cart</RouterLink></li>
           </ul>
         </div>
         <div class="col-6 col-md-2">
