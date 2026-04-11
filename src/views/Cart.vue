@@ -2,10 +2,11 @@
 import { mapStores } from 'pinia'
 import { useCartStore } from '../stores/cart.js'
 import { useAuthStore } from '../stores/auth.js'
+import { useOrdersStore } from '../stores/orders.js'
 
 export default {
   computed: {
-    ...mapStores(useCartStore, useAuthStore),
+    ...mapStores(useCartStore, useAuthStore, useOrdersStore),
     subtotal() {
       return this.cartStore.totalPrice
     },
@@ -19,8 +20,13 @@ export default {
   methods: {
     checkout() {
       if (this.cartStore.items.length === 0) return
+      
+      const finalTotal = this.total + (this.subtotal < 50 ? 9.99 : 0)
+      this.ordersStore.addOrder(this.cartStore.items, finalTotal)
+      
       alert('Order placed successfully! Thank you for shopping with S1zz.')
       this.cartStore.clearCart()
+      this.$router.push('/orders')
     }
   },
   mounted() {

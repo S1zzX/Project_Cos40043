@@ -8,6 +8,7 @@ import ProductList from '../views/ProductList.vue'
 import ProductDetail from '../views/ProductDetail.vue'
 import Cart from '../views/Cart.vue'
 import Wishlist from '../views/Wishlist.vue'
+import OrderHistory from '../views/OrderHistory.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Dashboard from '../views/Dashboard.vue'
@@ -22,6 +23,7 @@ const routes = [
   { path: '/products/:id', component: ProductDetail, name: 'ProductDetail' },
   { path: '/cart', component: Cart, name: 'Cart', meta: { requiresAuth: true, restrictAdmin: true } },
   { path: '/wishlist', component: Wishlist, name: 'Wishlist', meta: { requiresAuth: true, restrictAdmin: true } },
+  { path: '/orders', component: OrderHistory, name: 'Orders', meta: { requiresAuth: true, restrictAdmin: true } },
   { path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } },
   { path: '/login', component: Login, name: 'Login', meta: { guestOnly: true } },
   { path: '/register', component: Register, name: 'Register', meta: { guestOnly: true } },

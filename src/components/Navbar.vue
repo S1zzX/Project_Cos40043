@@ -94,6 +94,11 @@ export default {
                     <i class="bi bi-person me-2"></i>My Profile
                   </RouterLink>
                 </li>
+                <li v-if="!authStore.isAdmin">
+                  <RouterLink class="dropdown-item" to="/orders">
+                    <i class="bi bi-clock-history me-2"></i>Order History
+                  </RouterLink>
+                </li>
                 <li>
                   <button class="dropdown-item" style="color:var(--brand-danger)" @click="logout">
                     <i class="bi bi-box-arrow-right me-2"></i>Logout
