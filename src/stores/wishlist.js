@@ -1,32 +1,29 @@
-/**
- * Wishlist Store
- * Also uses usePersistedState composable (Stage 3 integration).
- */
+
 import { defineStore } from 'pinia'
-import { usePersistedState } from '../plugins/piniaPersistedPlugin.js'
 
-export const useWishlistStore = defineStore('wishlist', () => {
-  const items = usePersistedState('s1zz_wishlist_items', [])
-
-  function isInWishlist(productId) {
-    return items.value.some(i => i.id === productId)
-  }
-
-  function toggleWishlist(product) {
-    if (isInWishlist(product.id)) {
-      items.value = items.value.filter(i => i.id !== product.id)
-    } else {
-      items.value.push(product)
+export const useWishlistStore = defineStore('wishlist', {
+  state: () => ({
+    items: []
+  }),
+  persist: {
+    keys: ['items']
+  },
+  actions: {
+    isInWishlist(productId) {
+      return this.items.some(i => i.id === productId)
+    },
+    toggleWishlist(product) {
+      if (this.isInWishlist(product.id)) {
+        this.items = this.items.filter(i => i.id !== product.id)
+      } else {
+        this.items.push(product)
+      }
+    },
+    removeFromWishlist(productId) {
+      this.items = this.items.filter(i => i.id !== productId)
+    },
+    clearWishlist() {
+      this.items = []
     }
   }
-
-  function removeFromWishlist(productId) {
-    items.value = items.value.filter(i => i.id !== productId)
-  }
-
-  function clearWishlist() {
-    items.value = []
-  }
-
-  return { items, isInWishlist, toggleWishlist, removeFromWishlist, clearWishlist }
 })

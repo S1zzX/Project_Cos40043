@@ -22,7 +22,7 @@ export default {
 
       <div v-if="wishlistStore.items.length === 0" class="text-center py-5">
         <i class="bi bi-heart" style="font-size:4rem;color:var(--text-muted)"></i>
-        <h4 class="mt-3 fw-bold">Your wishlistStore is empty</h4>
+        <h4 class="mt-3 fw-bold">Your wishlist is empty</h4>
         <p class="text-muted-custom">Save your favourite products here!</p>
         <RouterLink to="/products" class="btn btn-primary mt-2">
           <i class="bi bi-grid me-2"></i>Browse Products

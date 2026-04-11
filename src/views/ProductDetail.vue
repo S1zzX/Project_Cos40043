@@ -181,7 +181,7 @@ export default {
                 <button class="btn btn-outline-secondary" @click="qty++">+</button>
               </div>
               <button class="btn btn-primary flex-grow-1" @click="addToCart">
-                <i class="bi bi-cartStore-plus me-2"></i>{{ addedToCart ? '✓ Added!' : 'Add to Cart' }}
+                <i class="bi bi-cart-plus me-2"></i>{{ addedToCart ? '✓ Added!' : 'Add to Cart' }}
               </button>
             </div>
             <div class="d-flex gap-3">
