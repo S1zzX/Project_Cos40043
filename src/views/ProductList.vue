@@ -93,7 +93,7 @@ export default {
       <div class="row g-4">
         <!-- Sidebar Filters -->
         <div class="col-12 col-lg-3">
-          <div class="card p-4 sticky-top" style="top:80px">
+          <div class="card p-4 sticky-top" style="top:80px; z-index:10">
             <h5 class="fw-bold mb-3"><i class="bi bi-funnel me-2 text-brand"></i>Filters</h5>
 
             <!-- Search -->

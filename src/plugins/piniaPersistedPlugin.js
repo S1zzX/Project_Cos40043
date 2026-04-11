@@ -1,4 +1,3 @@
-import { watch } from 'vue'
 function debounce(fn, delay = 300) {
   let timer
   return (...args) => {
@@ -6,13 +5,17 @@ function debounce(fn, delay = 300) {
     timer = setTimeout(() => fn(...args), delay)
   }
 }
+
 export function piniaPersistedPlugin({ store, options }) {
   const persistOptions = options?.persist
   if (!persistOptions) return
+
   const prefix = persistOptions.prefix || 's1zz'
   const keys = persistOptions.keys
   const debounceMs = persistOptions.debounce ?? 250
+
   const stateKeys = keys || Object.keys(store.$state)
+
   stateKeys.forEach(key => {
     const storageKey = `${prefix}_${store.$id}_${key}`
     try {
@@ -24,21 +27,27 @@ export function piniaPersistedPlugin({ store, options }) {
       console.warn(`[S1zz Plugin] Rehydrate failed: ${storageKey}`, e)
     }
   })
+
+  // Create writers for each key
+  const writers = {}
   stateKeys.forEach(key => {
     const storageKey = `${prefix}_${store.$id}_${key}`
-    const debouncedWrite = debounce((value) => {
+    writers[key] = debounce((value) => {
       try {
         localStorage.setItem(storageKey, JSON.stringify(value))
       } catch (e) {
         console.error(`[S1zz Plugin] Write failed: ${storageKey}`, e)
       }
     }, debounceMs)
-    watch(
-      () => store.$state[key],
-      debouncedWrite,
-      { deep: true }
-    )
   })
+
+  // Replaces the Composition API 'watch' by using Pinia's out-of-the-box Instance API
+  store.$subscribe((mutation, state) => {
+    stateKeys.forEach(key => {
+      writers[key](state[key])
+    })
+  }, { detached: true })
+
   store.$persist = {
     clear() {
       stateKeys.forEach(key => {
